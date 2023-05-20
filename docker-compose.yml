@@ -24,6 +24,6 @@ services:
           - NETPARDAZ_IPS_CLIENT_SNORT_CONF_PATH=/etc/snort/snort.conf
       ports:
           - "8000:8000"  
-      command: python3 manage.py makemigrations && python3 manage.py migrate $$ python3 manage.py runserver
+      command: make run
       depends_on:
         - psql
