@@ -4,24 +4,23 @@ services:
       container_name: postgres_database
       image: postgres
       environment:
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_USER=postgres
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_PASSWORD=postgres
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_DB=ips_client
+          - IPS_CLIENT_POSTGRES_USER=postgres
+          - IPS_CLIENT_POSTGRES_PASSWORD=postgres
+          - IPS_CLIENT_POSTGRES_DB=ips_client
       restart: unless-stopped
   ips_client:
       build: .
       container_name: ips_client_srv
       restart: always
       environment:
-          - MODE=deployment
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_NAME=ips_client
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_USER=postgres
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_HOST=psql
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_PORT=5432
-          - NETPARDAZ_IPS_CLIENT_POSTGRES_PASSWORD=postgres
-          - NETPARDAZ_IPS_CLIENT_IPS_SERVER_URL=http://192.168.1.56:8000
-          - NETPARDAZ_IPS_CLIENT_SNORT_RULES_PATH=/etc/snort/rules/
-          - NETPARDAZ_IPS_CLIENT_SNORT_CONF_PATH=/etc/snort/snort.conf
+          - IPS_CLIENT_POSTGRES_NAME=ips_client
+          - IPS_CLIENT_POSTGRES_USER=postgres
+          - IPS_CLIENT_POSTGRES_HOST=psql
+          - IPS_CLIENT_POSTGRES_PORT=5432
+          - IPS_CLIENT_POSTGRES_PASSWORD=postgres
+          - IPS_CLIENT_IPS_SERVER_URL=http://192.168.1.56:8000
+          - IPS_CLIENT_SNORT_RULES_PATH=/etc/snort/rules/
+          - IPS_CLIENT_SNORT_CONF_PATH=/etc/snort/snort.conf
       ports:
           - "8000:8000"  
       command: make run

@@ -36,8 +36,8 @@ class EnableRule(APIView):
             rule_id = requested_data.get("rule_id")
         except:
             return Response({"error": "rule's code, rule's name or rule's is field is invalid"}, status.HTTP_400_BAD_REQUEST)
-        path = settings.SNORT_RULES_PATH + f"{rule_name}.rules"
-        dir_path = settings.SNORT_RULES_PATH
+        path = settings.IPS_CLIENT_SNORT_RULES_PATH + f"{rule_name}.rules"
+        dir_path = settings.IPS_CLIENT_SNORT_RULES_PATH
         change_mod(dir_path)
         change_mod(path)
         with open(path, 'w+') as my_rule:

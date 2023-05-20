@@ -99,7 +99,7 @@ def set_snort_conf():
             snort_conf.write(local_conf)
 
 def delete_rule_file(rule_name):
-    snort_rules_path = settings.SNORT_RULES_PATH
+    snort_rules_path = settings.IPS_CLIENT_SNORT_RULES_PATH
     change_mod(snort_rules_path)
     os.remove(snort_rules_path+f"{rule_name}.rules")
 
