@@ -6,6 +6,7 @@ from rest_framework import status
 from .models import Rules
 from utils.functions import get_rules_list, retrieve_rule, change_mod,set_snort_conf, delete_rule_file, set_home_net_ipvar
 from ips_client import settings
+from user_manager.permissions import IsAdmin
 import logging
 import traceback
 
@@ -16,7 +17,7 @@ class RulesList(APIView):
     """
     get list of rules or filtered rules by action.
     """
-
+    permission_classes = [IsAdmin]
     def get(self, request):
         rules_list = get_rules_list()
         if rules_list:
@@ -28,6 +29,7 @@ class EnableRule(APIView):
     """
     enable a specific rule.
     """        
+    permission_classes = [IsAdmin]
     def post(self, request):
         requested_data = request.data
         try:
@@ -54,6 +56,7 @@ class DisableRule(APIView):
     """
     disable a specific rule.
     """  
+    permission_classes = [IsAdmin]
     def get(self, request, rule_name):
         try:
             rule = Rules.objects.get(rule_name=rule_name)
@@ -65,12 +68,14 @@ class DisableRule(APIView):
             return Response({"error": "invalid name"}, status.HTTP_400_BAD_REQUEST)
 
 class MyRules(APIView):
+    permission_classes = [IsAdmin]
     def get(self,request):
         rules = Rules.objects.all()
         serialized_rules = RulesSerializers(rules, many=True)
         return Response(serialized_rules.data, status.HTTP_200_OK)
 
 class DetailRule(APIView):
+    permission_classes = [IsAdmin]
     def get(self, request, pk):
         rule = retrieve_rule(pk)
         if rule:
@@ -79,6 +84,7 @@ class DetailRule(APIView):
             return Response({'error': 'authorization error, check your email or password'}, status.HTTP_400_BAD_REQUEST)
         
 class SetHomeNet(APIView):
+    permission_classes = [IsAdmin]
     def post(self, request):
         requested_data = request.data
         try:
