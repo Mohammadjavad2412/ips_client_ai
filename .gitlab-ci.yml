@@ -6,6 +6,8 @@ stages:
 
 build:
   stage: build
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "stage"'
   script:
     - docker-compose down
     - docker-compose build
