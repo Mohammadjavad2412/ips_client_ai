@@ -1,5 +1,5 @@
 image:
-  name: docker/compose:latest
+  name: ubuntu:20.04
 
 stages:
   - build
