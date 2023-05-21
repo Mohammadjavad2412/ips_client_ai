@@ -1,5 +1,6 @@
 image:
-  name: ubuntu:20.04
+  name: docker/compose:latest
+  entrypoint: ["/bin/sh", "-c"]
 
 stages:
   - build
