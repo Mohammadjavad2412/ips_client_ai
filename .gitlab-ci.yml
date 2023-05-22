@@ -7,6 +7,7 @@ variables:
 
 services:
   - docker:20.10.16-dind
+    command: ["--registry-mirror", "http://nexus:8181"]
 
 stages:
   - build
