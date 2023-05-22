@@ -22,7 +22,7 @@ build:
     - docker-compose version
   script:
     - 'sed -ir "s/image: \(.*\)$/image: 10.27.95.5:8181\/\1/g" docker-compose.yml'
-    - 'sed -ir "s/FROM \(.*\)$/FROM 10.27.95.5:8181\/\1/g' Dockerfile'
+    - 'sed -ir "s/FROM \(.*\)$/FROM 10.27.95.5:8181\/\1/g" Dockerfile'
     - docker-compose down
     - docker-compose build
     - docker-compose up
