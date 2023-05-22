@@ -4,6 +4,7 @@ services:
       container_name: postgres_database
       image: postgres
       environment:
+          - POSTGRES_PASSWORD=S0mETh1nGV3ryC0mPl3x
           - IPS_CLIENT_POSTGRES_USER=postgres
           - IPS_CLIENT_POSTGRES_PASSWORD=postgres
           - IPS_CLIENT_POSTGRES_DB=ips_client
