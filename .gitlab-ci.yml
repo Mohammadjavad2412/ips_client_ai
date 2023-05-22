@@ -1,5 +1,5 @@
 image:
-  name: nexus:8181/docker/compose:latest
+  name: nexus:8181/docker/compose
 
 stages:
   - build
