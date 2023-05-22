@@ -1,12 +1,12 @@
 image:
-  name: 10.27.95.5:8181/docker:20.10.16
+  name: nexus:8181/docker:20.10.16
 
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
 
 services:
-  - 10.27.95.5:8181/docker:20.10.16-dind
+  - nexus:8181/docker:20.10.16-dind
 
 stages:
   - build
