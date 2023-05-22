@@ -12,6 +12,7 @@ build:
   script:
     - 'sed -ir "s/image: \(.*\)$/image: 10.27.95.5:8181\/\1/g" docker-compose.yml'
     - 'sed -ir "s/FROM \(.*\)$/FROM 10.27.95.5:8181\/\1/g" Dockerfile'
+    - cat /etc/docker/daemon.json
     - docker-compose down
     - docker-compose build
     - docker-compose up
