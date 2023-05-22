@@ -1,5 +1,5 @@
 image:
-  name: nexus:8181/docker/compose
+  name: nexus:443/docker/compose
 
 stages:
   - build
@@ -10,8 +10,8 @@ build:
     - docker info
     - docker-compose version
   script:
-    - 'sed -ir "s/image: \(.*\)$/image: 10.27.95.5:8181\/\1/g" docker-compose.yml'
-    - 'sed -ir "s/FROM \(.*\)$/FROM 10.27.95.5:8181\/\1/g" Dockerfile'
+    - 'sed -ir "s/image: \(.*\)$/image: 10.27.95.5:443\/\1/g" docker-compose.yml'
+    - 'sed -ir "s/FROM \(.*\)$/FROM 10.27.95.5:443\/\1/g" Dockerfile'
     - cat /etc/docker/daemon.json
     - docker-compose down
     - docker build -t ips_client_srv .
