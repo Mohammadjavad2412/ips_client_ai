@@ -1,6 +1,10 @@
 image:
   name: docker:20.10.16
 
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
 services:
   - docker:20.10.16-dind
 
