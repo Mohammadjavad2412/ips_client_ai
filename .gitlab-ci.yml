@@ -1,5 +1,5 @@
 image:
-  name: nexus:8181/docker:20.10.16
+  name: nexus:8181/docker/compose:latest
 
 stages:
   - build
@@ -8,10 +8,6 @@ build:
   stage: build
   before_script:
     - docker info
-    - apk add --no-cache curl
-    - curl -L "https://github.com/docker/compose/releases/download/v2.18.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    - chmod +x /usr/local/bin/docker-compose
-    - export PATH=/usr/local/bin:$PATH
     - docker-compose version
   script:
     - 'sed -ir "s/image: \(.*\)$/image: 10.27.95.5:8181\/\1/g" docker-compose.yml'
