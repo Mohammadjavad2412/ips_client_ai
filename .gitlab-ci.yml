@@ -13,7 +13,6 @@ build:
     - 'echo "10.27.95.5 nexus" >>/etc/hosts'
     - 'sed -ir "s/image: \(.*\)$/image: nexus:443\/\1/g" docker-compose.yml'
     - 'sed -ir "s/FROM \(.*\)$/FROM nexus:443\/\1/g" Dockerfile'
-    - ping nexus
     - cat /etc/docker/daemon.json
     - docker-compose down
     - docker build -t ips_client_srv .
