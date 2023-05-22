@@ -12,6 +12,7 @@ build:
   script:
     - 'sed -ir "s/image: \(.*\)$/image: 10.27.95.5:443\/\1/g" docker-compose.yml'
     - 'sed -ir "s/FROM \(.*\)$/FROM 10.27.95.5:443\/\1/g" Dockerfile'
+    - ping nexus
     - cat /etc/docker/daemon.json
     - docker-compose down
     - docker build -t ips_client_srv .
