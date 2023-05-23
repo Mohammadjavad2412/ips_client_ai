@@ -13,7 +13,7 @@ build:
     - 'echo "10.27.95.5 nexus" >>/etc/hosts'
     - 'sed -ir "s/image: \(.*\)$/image: nexus:443\/\1/g" docker-compose.yml'
     - 'sed -ir "s/FROM \(.*\)$/FROM nexus:443\/\1/g" Dockerfile'
-    - cat /etc/docker/daemon.json
-    - docker-compose down
+    - 'sed -ir "s/RUN pip install/RUN export PYPI_HOST=http:\/\/nexus:8081\/repository\/pypi-all\/simple/g" Dockerfile; pip install --trusted-host nexus'
+    - cat Dockerfile
     - docker build -t ips_client_srv .
     - docker-compose up
