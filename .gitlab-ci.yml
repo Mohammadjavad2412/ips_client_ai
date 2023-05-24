@@ -1,12 +1,19 @@
 image:
-  name: docker/compose:latest
+  name: nexus:443/docker/compose
 
 stages:
   - build
 
 build:
   stage: build
+  before_script:
+    - docker info
+    - docker-compose version
   script:
-    - docker-compose down
-    - docker-compose build
+    - 'echo "10.27.95.5 nexus" >>/etc/hosts'
+    - 'sed -ir "s/image: \(.*\)$/image: nexus:443\/\1/g" docker-compose.yml'
+    - 'sed -ir "s/FROM \(.*\)$/FROM nexus:443\/\1/g" Dockerfile'
+    - 'sed -ir "s/RUN pip install/RUN pip install --index-url http:\/\/10.27.95.5:8081\/repository\/pypi-all\/simple --trusted-host 10.27.95.5/g" Dockerfile'
+    - cat Dockerfile
+    - docker build -t ips_client_srv .
     - docker-compose up
