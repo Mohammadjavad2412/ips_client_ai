@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     #third party
     "rest_framework",
     #swagger
-    "drf_spectacular",
+    # "drf_spectacular",
 ]
 
 MIDDLEWARE = [
