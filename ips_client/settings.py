@@ -102,17 +102,17 @@ DATABASES = {
 
 # #Rest frame work
 
-REST_FRAMEWORK = {
+# REST_FRAMEWORK = {
     # YOUR SETTINGS
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-}
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Intrusion prevention system client',
-    'DESCRIPTION': 'work with rules',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
-}
+#     # 'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+# }
+# SPECTACULAR_SETTINGS = {
+    # 'TITLE': 'Intrusion prevention system client',
+    # 'DESCRIPTION': 'work with rules',
+    # 'VERSION': '1.0.0',
+    # 'SERVE_INCLUDE_SCHEMA': False,
+#     # OTHER SETTINGS
+# }
 
 
 AUTH_USER_MODEL = "user_manager.Users"
