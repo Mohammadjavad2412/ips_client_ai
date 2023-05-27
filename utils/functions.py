@@ -127,7 +127,7 @@ def get_access_token_from_server():
     response = json.loads(request.content)
     if request.status_code == 200:
         access_token = response['access']
-        raw_path = os.path.join(BASE_DIR,"settings.py")
+        raw_path = os.path.join(BASE_DIR,"ips_client","settings.py")
         with open(raw_path, "r") as settings_file:
             settings_file = settings_file.read()
             new_conf = re.sub(r"SERVER_SIDE_ACCESS_TOKEN.*", f"SERVER_SIDE_ACCESS_TOKEN='{str(access_token)}'", settings_file, re.MULTILINE)
@@ -143,4 +143,11 @@ def create_admin():
         pass
     else:
         UserManagement.create_superuser(email="admin@admin.com", password="admin")
-    
+
+def set_device_serial(serial):
+    raw_path = os.path.join(BASE_DIR,"ips_client","settings.py")
+    with open(raw_path, "r") as settings_file:
+        settings_file = settings_file.read()
+        new_conf = re.sub(r"DEVICE_SERIAL.*", f"DEVICE_SERIAL='{str(serial)}'", settings_file, re.MULTILINE)
+    with open(raw_path, 'w') as new_settings_file:
+        new_settings_file.write(new_conf)

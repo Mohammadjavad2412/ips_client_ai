@@ -3,8 +3,7 @@ from rest_framework.views import APIView
 from user_manager.permissions import IsAdmin
 from user_manager.models import Users
 from user_manager.serializers import UserSerializer
-from ips_client.settings import IPS_CLIENT_SERVER_URL, SERVER_SIDE_EMAIL, SERVER_SIDE_PASSWORD, SERVER_SIDE_ACCESS_TOKEN
-from ips_client import settings
+from ips_client.settings import IPS_CLIENT_SERVER_URL
 from rest_framework.response import Response
 from rest_framework import status
 from ips_client.settings import BASE_DIR
@@ -41,7 +40,7 @@ class ServerAuthentication(APIView):
                 if request.status_code == 200:
                     response = json.loads(request.content)
                     access_token = response['access']
-                    raw_path = os.path.join(BASE_DIR,"settings.py")
+                    raw_path = os.path.join(BASE_DIR,"ips_client","settings.py")
                     with open(raw_path, "r") as settings_file:
                         settings_file = settings_file.read()
                         new_conf = re.sub(r"SERVER_SIDE_EMAIL.*", f"SERVER_SIDE_EMAIL='{str(email)}'", settings_file, re.MULTILINE)
@@ -52,7 +51,6 @@ class ServerAuthentication(APIView):
                     return Response("successfully authorized", status.HTTP_200_OK)
                 elif request.status_code == 401:
                     return Response({"error": "Invalid email or password"}, status.HTTP_401_UNAUTHORIZED)
-
                 else:
                     return Response({"error" : "server down, try later"}, status.HTTP_500_INTERNAL_SERVER_ERROR)            
             except:

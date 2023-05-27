@@ -4,11 +4,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Rules
-from utils.functions import get_rules_list, retrieve_rule, change_mod,set_snort_conf, delete_rule_file, set_home_net_ipvar
+from ips_client.settings import BASE_DIR
+from utils.functions import get_rules_list, retrieve_rule, change_mod,set_snort_conf, delete_rule_file, set_home_net_ipvar, get_access_token_from_server,set_device_serial
 from ips_client import settings
 from user_manager.permissions import IsAdmin
 import logging
 import traceback
+import requests
+import json
 
 # Create your views here.
 
@@ -94,3 +97,72 @@ class SetHomeNet(APIView):
         except: 
             logging.error(traceback.format_exc())
             return Response({"error": "ip list field is invalid"}, status.HTTP_400_BAD_REQUEST)
+
+class AssignOwner(APIView):
+    permission_classes = [IsAdmin]    
+    def post(self, request):
+        requested_data = request.data
+        try:
+            serial = requested_data.get('serial')
+            access_token = settings.SERVER_SIDE_ACCESS_TOKEN
+            headers = {"Authorization" : f"Bearer {access_token}"}
+            server_base_url = settings.IPS_CLIENT_SERVER_URL
+            server_assign_owner_url = server_base_url + f"/products/assign_owner/"
+            body = {'serial' : serial}
+            request = requests.post(url=server_assign_owner_url, data=body, headers=headers)
+            if request.status_code == 200:
+                response = json.loads(request.content)
+                set_device_serial(serial)
+                return Response({"info":"serial assigend"}, status.HTTP_200_OK)
+            elif request.status_code == 401:
+                access_token = get_access_token_from_server()
+                if access_token:
+                    headers = {"Authorization" : f"Bearer {access_token}"}
+                    request = requests.post(url=server_assign_owner_url, data=body, headers=headers)
+                    if request.status_code == 200:
+                        response = json.loads(request.content)
+                        set_device_serial(serial)
+                        return Response({"info":"serial assigend"}, status.HTTP_200_OK)
+                    elif request.status_code == 400:
+                        response = json.loads(request.content)
+                        return Response({"error": response}, status.HTTP_400_BAD_REQUEST)
+            elif request.status_code == 400:
+                response = json.loads(request.content)
+                return Response({"error": response}, status.HTTP_400_BAD_REQUEST)
+            elif request.status_code == 403:
+                response = json.loads(request.content)
+                return Response({"error": response}, status.HTTP_403_FORBIDDEN)
+        except:
+            logging.error(traceback.format_exc())
+            return Response({"error": "Invalid serial"}, status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class DeviceInfo(APIView):
+    permission_classes = [IsAdmin]
+    def get(self, request):
+        serial = settings.DEVICE_SERIAL
+        server_base_url = settings.IPS_CLIENT_SERVER_URL
+        server_device_info_url = server_base_url + f"/products/serial/{serial}"
+        try:
+            access_token = settings.SERVER_SIDE_ACCESS_TOKEN
+            headers = {"Authorization" : f"Bearer {access_token}"}
+            request = requests.get(url=server_device_info_url, headers=headers)
+            if request.status_code == 200:
+                response = json.loads(request.content)
+                return Response(response, status.HTTP_200_OK)
+            elif request.status_code == 401:
+                access_token = get_access_token_from_server()
+                if access_token:
+                    headers = {"Authorization" : f"Bearer {access_token}"}
+                    request = requests.get(url=server_device_info_url, headers=headers)
+                    response = json.loads(request.content)
+                    return Response(response, status.HTTP_200_OK)
+            elif request.status_code == 403:
+                return Response({"error": "Authorization required"}, status.HTTP_403_FORBIDDEN)
+            else:
+                return Response({"error": "server error, try later"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except:
+            logging.error(traceback.format_exc())
+            return Response({"error": "server error, try later"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
