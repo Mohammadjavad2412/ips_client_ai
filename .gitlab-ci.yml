@@ -16,5 +16,6 @@ build:
     - 'sed -ir "s/RUN pip install/RUN pip install --index-url http:\/\/10.27.95.5:8081\/repository\/pypi-all\/simple --trusted-host 10.27.95.5/g" Dockerfile'
     - cat Dockerfile
     - docker-compose down
+    - docker rmi -f ips_client_srv
     - docker build -t ips_client_srv .
     - docker-compose up
