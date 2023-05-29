@@ -2,12 +2,12 @@ version: '3.7'
 services:
   psql:
       container_name: postgres_database
-      image: postgres
+      image: postgres:latest
       environment:
           - POSTGRES_PASSWORD=S0mETh1nGV3ryC0mPl3x
-          - IPS_CLIENT_POSTGRES_USER=postgres
-          - IPS_CLIENT_POSTGRES_PASSWORD=postgres
-          - IPS_CLIENT_POSTGRES_DB=ips_client
+          - POSTGRES_USER=postgres
+      ports:
+          - '5432:5432'
       restart: unless-stopped
   ips_client:
       build: .
