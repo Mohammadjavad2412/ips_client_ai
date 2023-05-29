@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-o_($$gteswa7@mev2cx^*hrv^wvwjg3*lj&xn+@+uzni1f1x-(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*","0.0.0.0","127.0.0.1"]
 
 
 # Application definition
@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     #third party
     "rest_framework",
     #swagger
-    # "drf_spectacular",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -102,17 +102,20 @@ DATABASES = {
 
 # #Rest frame work
 
-# REST_FRAMEWORK = {
+REST_FRAMEWORK = {
     # YOUR SETTINGS
-#     # 'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-# }
-# SPECTACULAR_SETTINGS = {
-    # 'TITLE': 'Intrusion prevention system client',
-    # 'DESCRIPTION': 'work with rules',
-    # 'VERSION': '1.0.0',
-    # 'SERVE_INCLUDE_SCHEMA': False,
-#     # OTHER SETTINGS
-# }
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Intrusion prevention system client',
+    'DESCRIPTION': 'work with rules',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 
 AUTH_USER_MODEL = "user_manager.Users"

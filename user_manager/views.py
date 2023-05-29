@@ -1,12 +1,16 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from user_manager.permissions import IsAdmin
+from rest_framework.permissions import IsAuthenticated
 from user_manager.models import Users
-from user_manager.serializers import UserSerializer
+from user_manager.serializers import UserSerializer, LoginSerializer
 from ips_client.settings import IPS_CLIENT_SERVER_URL
 from rest_framework.response import Response
 from rest_framework import status
 from ips_client.settings import BASE_DIR
+from django.contrib.auth import logout, login
+from rest_framework.authentication import BasicAuthentication
+
 import os
 import logging
 import traceback
@@ -20,6 +24,36 @@ class UserView(ModelViewSet):
     queryset = Users.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdmin]
+
+
+class LoginView(APIView):
+    
+    def post(self, request):
+        requested_data = request.data
+        ser_data = LoginSerializer(data=requested_data)
+        if ser_data.is_valid():
+            email = requested_data.get("email")
+            password = requested_data.get("password")
+            try:
+                user = Users.objects.get(email=email)
+                if user.check_password(password):
+                    ser_user = UserSerializer(user)
+                    login(request, user)
+                    return Response(ser_user.data, status.HTTP_200_OK)
+                else:
+                    return Response({"error": "Invalid username or password"}, status.HTTP_400_BAD_REQUEST)
+            except:
+                logging.error(traceback.format_exc())
+                return Response({"error": "user not found, signup first!"}, status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(ser_data.errors, status.HTTP_400_BAD_REQUEST)
+
+class LogOutView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicAuthentication]
+    def get(self, request):
+        logout(request)
+        return Response({"info":"logged out successfully"}, status.HTTP_200_OK)
 
 class ServerAuthentication(APIView):
 

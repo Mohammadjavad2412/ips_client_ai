@@ -6,6 +6,13 @@ import uuid
 
 class Users(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    username = models.CharField(
+        ("username"),
+        max_length=150,
+        unique=False,
+        null=True,
+        blank=True
+    )
     email = models.EmailField(blank=False, null=False, unique=True)
     password = models.CharField(max_length=100,blank=False, null=False, unique=True)
     is_superuser = models.BooleanField(default=False, blank=True, null=True)

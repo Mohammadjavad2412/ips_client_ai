@@ -9,5 +9,7 @@ router.register("", UserView)
 app_name = "users"
 urlpatterns = [
     path("server_auth/", views.ServerAuthentication.as_view(), name="server_auth"),
+    path("login/", views.LoginView.as_view(), name="login"),
+    path("logout/", views.LogOutView.as_view(), name="logout")
 ]
 urlpatterns += router.urls
