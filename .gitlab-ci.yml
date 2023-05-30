@@ -6,6 +6,8 @@ stages:
 
 build:
   stage: build
+  variables:
+    COMPOSE_HTTP_TIMEOUT: 180
   before_script:
     - docker info
     - docker-compose version
