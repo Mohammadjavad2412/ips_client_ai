@@ -5,6 +5,7 @@ from pathlib import Path
 from ips_client import settings
 from user_manager.models import Users
 from user_manager.models import UserManagement
+from rules.models import ValidIps
 import requests
 import json
 import traceback
@@ -103,19 +104,26 @@ def delete_rule_file(rule_name):
     change_mod(snort_rules_path)
     os.remove(snort_rules_path+f"{rule_name}.rules")
 
-def set_home_net_ipvar(ip_list):
+def set_home_net_ipvar(ip_list, ip_type):
     local_raw_snort_conf_path = os.path.join(BASE_DIR, "raw_snort.conf")
     local_snort_conf_path = os.path.join(BASE_DIR, "snort.conf")
-    snort_conf_path = settings.SNORT_CONF_PATH
+    snort_conf_path = settings.IPS_CLIENT_SNORT_CONF_PATH
     snort_conf_path_path = Path(snort_conf_path)
     snort_conf_dir_path = snort_conf_path_path.parent.absolute()
     change_mod(snort_conf_path)
     change_mod(snort_conf_dir_path)
-    with open(snort_conf_path, 'r') as snort_conf:
-        snort_conf = snort_conf.read()
-        new_conf = re.sub(r"ipvar HOME_NET.*", f"ipvar HOME_NET {ip_list}", snort_conf, re.MULTILINE)
-        with open(snort_conf_path, 'w') as snort_conf_w:
-            snort_conf_w.write(new_conf)
+    if ip_type == 'Internal':
+        with open(snort_conf_path, 'r') as snort_conf:
+            snort_conf = snort_conf.read()
+            new_conf = re.sub(r"ipvar HOME_NET.*", f"ipvar HOME_NET {ip_list}", snort_conf, re.MULTILINE)
+            with open(snort_conf_path, 'w') as snort_conf_w:
+                snort_conf_w.write(new_conf)
+    if ip_type == 'External':
+        with open(snort_conf_path, 'r') as snort_conf:
+            snort_conf = snort_conf.read()
+            new_conf = re.sub(r"ipvar EXTERNAL_NET.*", f"ipvar EXTERNAL_NET {ip_list}", snort_conf, re.MULTILINE)
+            with open(snort_conf_path, 'w') as snort_conf_w:
+                snort_conf_w.write(new_conf)
 
 def get_access_token_from_server():
     body = {
@@ -151,3 +159,25 @@ def set_device_serial(serial):
         new_conf = re.sub(r"DEVICE_SERIAL.*", f"DEVICE_SERIAL='{str(serial)}'", settings_file, re.MULTILINE)
     with open(raw_path, 'w') as new_settings_file:
         new_settings_file.write(new_conf)
+
+def sync_db_snort_ips():
+    local_raw_snort_conf_path = os.path.join(BASE_DIR, "raw_snort.conf")
+    local_snort_conf_path = os.path.join(BASE_DIR, "snort.conf")
+    snort_conf_path = settings.IPS_CLIENT_SNORT_CONF_PATH
+    snort_conf_path_path = Path(snort_conf_path)
+    snort_conf_dir_path = snort_conf_path_path.parent.absolute()
+    change_mod(snort_conf_path)
+    change_mod(snort_conf_dir_path)
+    ips = ValidIps.objects.all()
+    internal_ips = [ip.ip for ip in ips if ip.ip_type == "Internal"]
+    external_ips = [ip.ip for ip in ips if ip.ip_type == "External"]
+    with open(snort_conf_path, 'r') as snort_conf:
+        snort_conf = snort_conf.read()
+        new_conf = re.sub(r"ipvar HOME_NET.*", f"ipvar HOME_NET {internal_ips}", snort_conf, re.MULTILINE)
+        with open(snort_conf_path, 'w') as snort_conf_w:
+            snort_conf_w.write(new_conf)
+    with open(snort_conf_path, 'r') as snort_conf:
+        snort_conf = snort_conf.read()
+        new_conf = re.sub(r"ipvar EXTERNAL_NET.*", f"ipvar EXTERNAL_NET {external_ips}", snort_conf, re.MULTILINE)
+        with open(snort_conf_path, 'w') as snort_conf_w:
+            snort_conf_w.write(new_conf)

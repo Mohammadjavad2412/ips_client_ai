@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-o_($$gteswa7@mev2cx^*hrv^wvwjg3*lj&xn+@+uzni1f1x-(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*","0.0.0.0","127.0.0.1"]
+ALLOWED_HOSTS = ["*","0.0.0.0","127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -48,9 +48,13 @@ INSTALLED_APPS = [
     "rest_framework",
     #swagger
     "drf_spectacular",
+    #corseheaders
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -105,7 +109,7 @@ DATABASES = {
 REST_FRAMEWORK = {
     # YOUR SETTINGS
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
@@ -167,11 +171,14 @@ IPS_CLIENT_SERVER_URL=os.getenv("IPS_CLIENT_SERVER_URL")
 IPS_CLIENT_SNORT_RULES_PATH=os.getenv("IPS_CLIENT_SNORT_RULES_PATH")
 IPS_CLIENT_SNORT_CONF_PATH=os.getenv("IPS_CLIENT_SNORT_CONF_PATH")
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-]
+# CORS_ORIGIN_WHITELIST = [
+#     'http://localhost:3000',
+# ]
+
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 SERVER_SIDE_EMAIL='mohammadali@gmail.com'
 SERVER_SIDE_PASSWORD='mohammadali'
-SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg2MDU5NTEwLCJpYXQiOjE2ODUxOTU1MTAsImp0aSI6ImQzOGJjMjdkOTcwMzRlZWFiNmZiZjZhZjQ0NmVkOGFiIiwidXNlcl9pZCI6ImY4ZjMxMGM5LTA0MzItNDYyZC04YzljLTIwYTAwNDRiM2ZhOSJ9.ftlL_-f8tu2HnveVrUmfaQceh9Cg7GT5V5E-wPGiy5I'
+SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg3MjYyMzc1LCJpYXQiOjE2ODYzOTgzNzUsImp0aSI6ImJlZWFjZTE5NzBkMTRiZTk4MDhlZWY5YzY5YWM4NTFiIiwidXNlcl9pZCI6ImY4ZjMxMGM5LTA0MzItNDYyZC04YzljLTIwYTAwNDRiM2ZhOSJ9.kX6mLYfFxMw7fxWZ-7-XIvnr3ZQRcdAvT8Ka2M2Nm88'
 DEVICE_SERIAL='349237a4-c968-48fb-a7ea-5d0a78b0bc53'

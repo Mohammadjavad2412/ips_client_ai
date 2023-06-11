@@ -1,5 +1,9 @@
 from rules import views
 from django.urls import path
+from rest_framework import routers
+
+router = routers.SimpleRouter()
+router.register("valid_ips", views.ValidIpsView)
 
 app_name = "rules"
 urlpatterns = [
@@ -8,8 +12,7 @@ urlpatterns = [
     path("my_rules/", views.MyRules.as_view(), name="my_rules"),
     path("detail/<str:pk>/", views.DetailRule.as_view(), name="detail"),
     path("disable/<str:rule_name>/", views.DisableRule.as_view(), name="disable"),
-    path("set_home_net/", views.SetHomeNet.as_view(), name="set_home_net"),
     path("assign_owner/", views.AssignOwner.as_view(), name="assign_owner"),
     path("device_info/", views.DeviceInfo.as_view(), name="device_info")
-]
-
+] 
+urlpatterns += router.urls

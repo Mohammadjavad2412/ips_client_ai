@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from user_manager.permissions import IsAdmin
+from user_manager.permissions import IsAdmin, IsSuperUser, UserPermission
 from rest_framework.permissions import IsAuthenticated
 from user_manager.models import Users
 from user_manager.serializers import UserSerializer, LoginSerializer
@@ -10,7 +10,7 @@ from rest_framework import status
 from ips_client.settings import BASE_DIR
 from django.contrib.auth import logout, login
 from rest_framework.authentication import BasicAuthentication
-
+from ips_client import settings
 import os
 import logging
 import traceback
@@ -23,7 +23,7 @@ import re
 class UserView(ModelViewSet):
     queryset = Users.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [UserPermission]
 
 
 class LoginView(APIView):
@@ -39,7 +39,23 @@ class LoginView(APIView):
                 if user.check_password(password):
                     ser_user = UserSerializer(user)
                     login(request, user)
-                    return Response(ser_user.data, status.HTTP_200_OK)
+                    server_side_email = settings.SERVER_SIDE_EMAIL
+                    server_side_password = settings.SERVER_SIDE_PASSWORD
+                    ips_authentication_server_url = IPS_CLIENT_SERVER_URL + "/users/token/"
+                    body = {
+                        "email" : server_side_email,
+                        "password" : server_side_password
+                    }
+                    request = requests.post(url = ips_authentication_server_url, data=body)
+                    if request.status_code == 200:
+                        response ={}
+                        response = ser_user.data
+                        response['is_authenticated'] = True
+                    else:
+                        response ={}
+                        response = ser_user.data
+                        response['is_authenticated'] = False
+                    return Response(response, status.HTTP_200_OK)
                 else:
                     return Response({"error": "Invalid username or password"}, status.HTTP_400_BAD_REQUEST)
             except:

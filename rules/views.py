@@ -1,17 +1,21 @@
-from .models import Rules
-from .serializers import RulesSerializers
+from .models import Rules, ValidIps
+from user_manager.models import Users
+from .serializers import RulesSerializers, IpSerializers
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Rules
 from ips_client.settings import BASE_DIR
-from utils.functions import get_rules_list, retrieve_rule, change_mod,set_snort_conf, delete_rule_file, set_home_net_ipvar, get_access_token_from_server,set_device_serial
+from utils.functions import get_rules_list, retrieve_rule, change_mod,set_snort_conf, delete_rule_file, get_access_token_from_server,set_device_serial, sync_db_snort_ips
 from ips_client import settings
 from user_manager.permissions import IsAdmin
 import logging
 import traceback
 import requests
 import json
+import ipaddress
 
 # Create your views here.
 
@@ -25,8 +29,10 @@ class RulesList(APIView):
         rules_list = get_rules_list()
         if rules_list:
             return Response(rules_list, status.HTTP_200_OK)
+        if rules_list == []:
+            return Response({"info": "currently there is no rules available"}, status.HTTP_200_OK)
         else:
-            return Response({'error': 'authorization error, check your email or password'}, status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'you have not been authorized in server side'}, status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED)
 
 class EnableRule(APIView):
     """
@@ -71,7 +77,7 @@ class DisableRule(APIView):
             return Response({"error": "invalid name"}, status.HTTP_400_BAD_REQUEST)
 
 class MyRules(APIView):
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
     def get(self,request):
         rules = Rules.objects.all()
         serialized_rules = RulesSerializers(rules, many=True)
@@ -86,17 +92,16 @@ class DetailRule(APIView):
         else:
             return Response({'error': 'authorization error, check your email or password'}, status.HTTP_400_BAD_REQUEST)
         
-class SetHomeNet(APIView):
-    permission_classes = [IsAdmin]
-    def post(self, request):
-        requested_data = request.data
-        try:
-            ip_list = requested_data.get('ip_list')
-            set_home_net_ipvar(ip_list)
-            return Response("ipvar changed successfully", status.HTTP_200_OK)
-        except: 
-            logging.error(traceback.format_exc())
-            return Response({"error": "ip list field is invalid"}, status.HTTP_400_BAD_REQUEST)
+class ValidIpsView(ModelViewSet):
+    queryset = ValidIps.objects.all()
+    # permission_classes = [IsAdmin]
+    serializer_class = IpSerializers
+    def get_serializer(self, *args, **kwargs):
+        if "data" in kwargs:
+            data = kwargs["data"]
+            if isinstance(data, list):
+                kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
 
 class AssignOwner(APIView):
     permission_classes = [IsAdmin]    
@@ -113,6 +118,10 @@ class AssignOwner(APIView):
             if request.status_code == 200:
                 response = json.loads(request.content)
                 set_device_serial(serial)
+                users = Users.objects.all()
+                for user in users:
+                    user.device_serial = serial
+                    user.save()
                 return Response({"info":"serial assigend"}, status.HTTP_200_OK)
             elif request.status_code == 401:
                 access_token = get_access_token_from_server()
@@ -122,8 +131,11 @@ class AssignOwner(APIView):
                     if request.status_code == 200:
                         response = json.loads(request.content)
                         set_device_serial(serial)
+                        for user in users:
+                            user.device_serial = serial
+                            user.save()
                         return Response({"info":"serial assigend"}, status.HTTP_200_OK)
-                    elif request.status_code == 400:
+                    elif request.status_code == 400: 
                         response = json.loads(request.content)
                         return Response({"error": response}, status.HTTP_400_BAD_REQUEST)
             elif request.status_code == 400:
@@ -135,9 +147,6 @@ class AssignOwner(APIView):
         except:
             logging.error(traceback.format_exc())
             return Response({"error": "Invalid serial"}, status.HTTP_400_BAD_REQUEST)
-
-
-
 
 class DeviceInfo(APIView):
     permission_classes = [IsAdmin]
