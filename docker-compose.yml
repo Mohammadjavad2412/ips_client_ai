@@ -2,12 +2,13 @@ version: '3.7'
 services:
   psql:
       container_name: postgres_database
-      image: postgres
+      image: postgres:latest
       environment:
           - POSTGRES_PASSWORD=S0mETh1nGV3ryC0mPl3x
-          - IPS_CLIENT_POSTGRES_USER=postgres
-          - IPS_CLIENT_POSTGRES_PASSWORD=postgres
-          - IPS_CLIENT_POSTGRES_DB=ips_client
+          - POSTGRES_USER=postgres
+          - POSTGRES_DB=ips_client
+      ports:
+          - '5432:5432'
       restart: unless-stopped
   ips_client:
       build: .
@@ -18,7 +19,7 @@ services:
           - IPS_CLIENT_POSTGRES_USER=postgres
           - IPS_CLIENT_POSTGRES_HOST=psql
           - IPS_CLIENT_POSTGRES_PORT=5432
-          - IPS_CLIENT_POSTGRES_PASSWORD=postgres
+          - IPS_CLIENT_POSTGRES_PASSWORD=S0mETh1nGV3ryC0mPl3x
           - IPS_CLIENT_IPS_SERVER_URL=http://192.168.1.56:8000
           - IPS_CLIENT_SNORT_RULES_PATH=/etc/snort/rules/
           - IPS_CLIENT_SNORT_CONF_PATH=/etc/snort/snort.conf

@@ -6,6 +6,8 @@ stages:
 
 build:
   stage: build
+  variables:
+    COMPOSE_HTTP_TIMEOUT: 180
   before_script:
     - docker info
     - docker-compose version
@@ -15,5 +17,7 @@ build:
     - 'sed -ir "s/FROM \(.*\)$/FROM nexus:443\/\1/g" Dockerfile'
     - 'sed -ir "s/RUN pip install/RUN pip install --index-url http:\/\/10.27.95.5:8081\/repository\/pypi-all\/simple --trusted-host 10.27.95.5/g" Dockerfile'
     - cat Dockerfile
+    - docker-compose down || true
+    - docker rmi -f ips_client_srv || true
     - docker build -t ips_client_srv .
     - docker-compose up
