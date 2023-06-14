@@ -13,6 +13,7 @@ urlpatterns = [
     path("detail/<str:pk>/", views.DetailRule.as_view(), name="detail"),
     path("disable/<str:rule_name>/", views.DisableRule.as_view(), name="disable"),
     path("assign_owner/", views.AssignOwner.as_view(), name="assign_owner"),
-    path("device_info/", views.DeviceInfo.as_view(), name="device_info")
+    path("device_info/", views.DeviceInfo.as_view(), name="device_info"),
+    path("update/<str:pk>/", views.UpdateRule.as_view(), name="update")
 ] 
 urlpatterns += router.urls

@@ -1,5 +1,14 @@
 from ips_client import settings
-from ips_client.settings import BASE_DIR
+from ips_client.settings import (
+    BASE_DIR,
+    IPS_CLIENT_MODE,
+    IPS_CLIENT_PRODUCTION_CONTAINER_NAME,
+    IPS_CLIENT_SNORT_CONF_PATH,
+    IPS_CLIENT_SNORT2_SNORT_LUA_FILE,
+    IPS_CLIENT_SNORT2_LUA_PATH,
+    IPS_CLIENT_SNORT_LUA_FILE,
+    IPS_CLIENT_SNORT_DEFAULT_LUA_FILE
+)
 from rules.models import Rules
 from pathlib import Path
 from ips_client import settings
@@ -13,6 +22,7 @@ import logging
 import os
 import re
 import subprocess as sp
+import signal
 
 def get_rules_list():
     server_base_url = settings.IPS_CLIENT_SERVER_URL
@@ -87,7 +97,7 @@ def create_include_rule_snort():
     return text
 
 def set_snort_conf():
-    snort_conf_path = settings.SNORT_CONF_PATH
+    snort_conf_path = settings.IPS_CLIENT_SNORT_CONF_PATH
     snort_conf_path_path = Path(snort_conf_path)
     snort_conf_dir_path = snort_conf_path_path.parent.absolute()
     local_snort_conf_path = os.path.join(BASE_DIR, "snort.conf")
@@ -146,7 +156,7 @@ def get_access_token_from_server():
         return None 
     
 def create_admin():
-    admin_user = Users.objects.get(is_superuser=True)
+    admin_user = Users.objects.get(is_superuser=True, is_admin=True)
     if admin_user:
         pass
     else:
@@ -181,3 +191,41 @@ def sync_db_snort_ips():
         new_conf = re.sub(r"ipvar EXTERNAL_NET.*", f"ipvar EXTERNAL_NET {external_ips}", snort_conf, re.MULTILINE)
         with open(snort_conf_path, 'w') as snort_conf_w:
             snort_conf_w.write(new_conf)
+ 
+def snort_r_command():
+    COMMAND = ['sudo','systemctl','stop', 'snort']
+    proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
+    proc.communicate()
+
+def create_lua_from_conf():
+    COMMAND = ['snort2lua', '-c', f"{IPS_CLIENT_SNORT_CONF_PATH}"]
+    proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
+    proc.communicate()
+
+def cp_lua():
+    COMMAND = ['sudo' ,'cp', '-f', f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", f"{IPS_CLIENT_SNORT_LUA_FILE}"]
+    proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
+    proc.communicate()
+
+def edit_snort_file():
+    with open(f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", "r") as snort_lua:
+        snort_lua = snort_lua.read()
+        edited_snort_lua = re.sub(r"dofile.*", f"dofile('{IPS_CLIENT_SNORT_DEFAULT_LUA_FILE}')", snort_lua, re.MULTILINE)
+        with open(f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", 'w') as new_snort_lua:
+            new_snort_lua.write(edited_snort_lua)
+
+
+def restart_snort():
+    if IPS_CLIENT_MODE == "development":
+        try:
+            os.chdir(f'{IPS_CLIENT_SNORT2_LUA_PATH}')
+            create_lua_from_conf()
+            change_mod(f"{IPS_CLIENT_SNORT2_LUA_PATH}/")
+            change_mod(f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}")
+            edit_snort_file()
+            cp_lua()
+            snort_r_command()
+        except sp.CalledProcessError as e:
+            logging.error({"Error": e})
+    else:    
+        sp.run(['sudo', 'lxc', 'exec', f"{IPS_CLIENT_PRODUCTION_CONTAINER_NAME}", "/bin/bash"])
