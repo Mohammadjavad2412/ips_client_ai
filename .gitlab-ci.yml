@@ -1,5 +1,5 @@
 image:
-  name: nexus:443/node:16-alpine
+  name: nexus:443/docker/compose
 
 stages:
   - build
