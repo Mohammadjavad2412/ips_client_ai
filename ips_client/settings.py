@@ -58,7 +58,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware', 
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.locale.LocaleMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -156,7 +157,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fa'
+
+LANGUAGES = [
+    ('fa', ('Farsi')),
+    ('en', ('English')),
+]
+
+USE_I18N = True
+
+# USE_L10N = True
 
 TIME_ZONE = 'UTC'
 
@@ -184,15 +194,19 @@ IPS_CLIENT_SNORT2_LUA_PATH=os.getenv("IPS_CLIENT_SNORT2_LUA_PATH")
 IPS_CLIENT_SNORT2_SNORT_LUA_FILE=os.getenv("IPS_CLIENT_SNORT2_SNORT_LUA_FILE")
 IPS_CLIENT_SNORT_LUA_FILE=os.getenv("IPS_CLIENT_SNORT_LUA_FILE")
 IPS_CLIENT_SNORT_DEFAULT_LUA_FILE=os.getenv("IPS_CLIENT_SNORT_DEFAULT_LUA_FILE")
+IPS_CLIENT_LOG_RABBIT_PATH=os.getenv("IPS_CLIENT_LOG_RABBIT_PATH")
+IPS_CLIENT_LOG_SNORT_PATH=os.getenv("IPS_CLIENT_LOG_SNORT_PATH")
 
 # CORS_ORIGIN_WHITELIST = [
 #     'http://localhost:3000',
 # ]
-
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
 SERVER_SIDE_EMAIL='mohammadali@gmail.com'
 SERVER_SIDE_PASSWORD='mohammadali'
-SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg3NDQzNTQ3LCJpYXQiOjE2ODY1Nzk1NDcsImp0aSI6Ijc4MGNiZGRlY2QxODRhYmE5MmE4OGRlNGVjZDE4ZmQwIiwidXNlcl9pZCI6ImY4ZjMxMGM5LTA0MzItNDYyZC04YzljLTIwYTAwNDRiM2ZhOSJ9.IJ1QiRdURZOapLdhn-m2lu6ppoqdkeoxBccru04g6Pw'
+SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg3ODY5NjQwLCJpYXQiOjE2ODcwMDU2NDAsImp0aSI6IjE5Y2E0NzYwNzk0NjQzMDA5YTU1NzRhYjdmOWM4OThmIiwidXNlcl9pZCI6ImY4ZjMxMGM5LTA0MzItNDYyZC04YzljLTIwYTAwNDRiM2ZhOSJ9.sqb_3voYYVMLyhauwVIn_vNKGR3ls2JfZCqL9XqIZOw'
 DEVICE_SERIAL='b9f069b3-d256-4e84-bc9c-5f9f55cdf0ac'

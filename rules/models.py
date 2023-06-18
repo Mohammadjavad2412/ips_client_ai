@@ -17,5 +17,8 @@ class Rules(models.Model):
 class ValidIps(models.Model):
     TYPE_CHOICES = (("Internal", "Internal"), ("External", "External"))
     ip_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
-    ip = models.CharField(max_length= 32,null=True, blank=True, unique=True)
+    ip = models.CharField(max_length= 32,null=True, blank=True)
+    
+    class Meta:
+        unique_together = ('ip', 'ip_type')
         

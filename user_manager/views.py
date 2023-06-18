@@ -1,5 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
+from django.utils.translation import gettext as _
 from user_manager.permissions import IsAdmin, IsSuperUser, UserPermission
 from rest_framework.permissions import IsAuthenticated
 from user_manager.models import Users
@@ -109,7 +110,7 @@ class ServerAuthentication(APIView):
                         new_conf = re.sub(r"SERVER_SIDE_ACCESS_TOKEN.*", f"SERVER_SIDE_ACCESS_TOKEN='{str(access_token)}'", new_conf, re.MULTILINE)
                     with open(raw_path, 'w') as new_settings_file:
                         new_settings_file.write(new_conf)
-                    return Response("successfully authorized", status.HTTP_200_OK)
+                    return Response(_({"info": "successfully authorized"}), status.HTTP_200_OK)
                 elif request.status_code == 401:
                     return Response({"error": "Invalid email or password"}, status.HTTP_401_UNAUTHORIZED)
                 else:

@@ -16,8 +16,9 @@ from utils.functions import (
     delete_rule_file,
     get_access_token_from_server,
     set_device_serial,
-    sync_db_snort_ips,
-    restart_snort
+    # sync_db_snort_ips,
+    restart_snort,
+    sync_db_and_snort
 )
 from ips_client import settings
 from user_manager.permissions import IsAdmin
@@ -32,13 +33,32 @@ import os
 # Create your views here.
 
 
+class RulesView(ModelViewSet):
+    queryset = Rules.objects.all()
+    serializer_class = RulesSerializers
+    permission_classes = [IsAdmin]
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        sync_db_and_snort()
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        sync_db_and_snort()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        sync_db_and_snort()
+
+
 class RulesList(APIView):
     """
     get list of rules or filtered rules by action.
     """
     permission_classes = [IsAdmin]
     def get(self, request):
-        rules_list = get_rules_list()
+        language = request.META.get("HTTP_ACCEPT_LANGUAGE")
+        rules_list = get_rules_list(language)
         if rules_list:
             return Response(rules_list, status.HTTP_200_OK)
         if rules_list == []:
@@ -107,7 +127,8 @@ class MyRules(APIView):
 class DetailRule(APIView):
     permission_classes = [IsAdmin]
     def get(self, request, pk):
-        rule = retrieve_rule(pk)
+        language = request.META.get("HTTP_ACCEPT_LANGUAGE")
+        rule = retrieve_rule(pk, language)
         if rule:
             return Response(rule, status.HTTP_200_OK)
         else:
@@ -150,15 +171,28 @@ class ValidIpsView(ModelViewSet):
             if isinstance(data, list):
                 kwargs["many"] = True
         return super().get_serializer(*args, **kwargs)
+    
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        sync_db_and_snort()
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        sync_db_and_snort()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        sync_db_and_snort()
 
 class AssignOwner(APIView):
     permission_classes = [IsAdmin]    
     def post(self, request):
+        language = request.META.get("HTTP_ACCEPT_LANGUAGE")
         requested_data = request.data
         try:
             serial = requested_data.get('serial')
             access_token = settings.SERVER_SIDE_ACCESS_TOKEN
-            headers = {"Authorization" : f"Bearer {access_token}"}
+            headers = {"Authorization" : f"Bearer {access_token}", "Accept-language": language}
             server_base_url = settings.IPS_CLIENT_SERVER_URL
             server_assign_owner_url = server_base_url + f"/products/assign_owner/"
             body = {'serial' : serial}
@@ -170,7 +204,7 @@ class AssignOwner(APIView):
             elif request.status_code == 401:
                 access_token = get_access_token_from_server()
                 if access_token:
-                    headers = {"Authorization" : f"Bearer {access_token}"}
+                    headers = {"Authorization" : f"Bearer {access_token}", "Accept-language": language}
                     request = requests.post(url=server_assign_owner_url, data=body, headers=headers)
                     if request.status_code == 200:
                         response = json.loads(request.content)
@@ -192,12 +226,13 @@ class AssignOwner(APIView):
 class DeviceInfo(APIView):
     permission_classes = [IsAdmin]
     def get(self, request):
+        language = request.META.get("HTTP_ACCEPT_LANGUAGE")
         serial = settings.DEVICE_SERIAL
         server_base_url = settings.IPS_CLIENT_SERVER_URL
         server_device_info_url = server_base_url + f"/products/serial/{serial}"
         try:
             access_token = settings.SERVER_SIDE_ACCESS_TOKEN
-            headers = {"Authorization" : f"Bearer {access_token}"}
+            headers = {"Authorization" : f"Bearer {access_token}", "Accept-language": language}
             request = requests.get(url=server_device_info_url, headers=headers)
             if request.status_code == 200:
                 response = json.loads(request.content)
@@ -205,7 +240,7 @@ class DeviceInfo(APIView):
             elif request.status_code == 401:
                 access_token = get_access_token_from_server()
                 if access_token:
-                    headers = {"Authorization" : f"Bearer {access_token}"}
+                    headers = {"Authorization" : f"Bearer {access_token}", "Accept-language": language}
                     request = requests.get(url=server_device_info_url, headers=headers)
                     response = json.loads(request.content)
                     return Response(response, status.HTTP_200_OK)
