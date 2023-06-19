@@ -90,7 +90,7 @@ def create_rules_files():
     for rule in rules:
         rule_name = rule.rule_name
         rule_code = rule.rule_code
-        path = settings.IPS_CLIENT_SNORT_RULES_PATH + f"/{rule_name}.rules"
+        path = settings.IPS_CLIENT_SNORT_RULES_PATH + f"{rule_name}.rules"
         dir_path = settings.IPS_CLIENT_SNORT_RULES_PATH
         change_mod(dir_path)
         change_mod(path)
