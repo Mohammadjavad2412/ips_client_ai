@@ -50,8 +50,6 @@ INSTALLED_APPS = [
     "user_manager.apps.UserManagerConfig",
     #third party
     "rest_framework",
-    #swagger
-    "drf_spectacular",
     #corseheaders
     'corsheaders'
 ]
