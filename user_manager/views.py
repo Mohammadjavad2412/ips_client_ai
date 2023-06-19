@@ -155,7 +155,9 @@ class ProductView(APIView):
                         return Response(response, status.HTTP_200_OK)
                     else:
                         return Response({"error":"something's wrong"}, status.HTTP_400_BAD_REQUEST)
-            if str(server_request.status_code).startswith("5"):
+            if str(server_request.status_code).startswith("4"):
+                return Response({"error": " maybe wrong device id"}, status.HTTP_400_BAD_REQUEST)
+            else:
                 return Response({"server down, try later"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
         except:
             return Response({"error":"internal server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
