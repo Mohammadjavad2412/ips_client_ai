@@ -2,7 +2,7 @@ version: '3.7'
 services:
   psql:
       container_name: postgres_database
-      image: postgres:latest
+      image: nexus:443/postgres:latest
       environment:
           - POSTGRES_PASSWORD=S0mETh1nGV3ryC0mPl3x
           - POSTGRES_USER=postgres
