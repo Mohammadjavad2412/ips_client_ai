@@ -26,5 +26,6 @@ services:
       ports:
           - "8000:8000"
       command: make run
+      container_name: ipsclient_srv
       depends_on:
         - psql
