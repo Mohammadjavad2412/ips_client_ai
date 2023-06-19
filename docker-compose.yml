@@ -13,6 +13,7 @@ services:
   ips_client:
       build: .
       container_name: ips_client_srv
+      image: ips_client:latest
       restart: always
       environment:
           - IPS_CLIENT_POSTGRES_NAME=ips_client
