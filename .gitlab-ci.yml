@@ -18,5 +18,4 @@ build:
     - cat Dockerfile
     - docker-compose down || true
     - docker rmi -f ips_client:latest || true
-    - docker build -t ips_client_srv .
     - docker-compose up
