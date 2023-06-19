@@ -78,14 +78,14 @@ def change_mod(path):
     proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
     proc.communicate()
 
-def clean_rules_dir():
-    os.chdir(f"{IPS_CLIENT_SNORT_RULES_PATH}")
-    COMMAND = ['sudo', 'rm', '-r', '*']
+def clean_rules_dir(path):
+    # os.chdir(f"{IPS_CLIENT_SNORT_RULES_PATH}")
+    COMMAND = ['sudo', 'rm', '-r', '*', path]
     proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
     proc.communicate()
 
 def create_rules_files():    
-    clean_rules_dir()
+    clean_rules_dir(IPS_CLIENT_SNORT_RULES_PATH)
     rules = Rules.objects.all()
     for rule in rules:
         rule_name = rule.rule_name
