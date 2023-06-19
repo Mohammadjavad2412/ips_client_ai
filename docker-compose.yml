@@ -12,7 +12,6 @@ services:
       restart: unless-stopped
   ips_client:
       build: .
-      container_name: ips_client_srv
       image: ips_client:latest
       restart: always
       environment:
@@ -25,7 +24,8 @@ services:
           - IPS_CLIENT_SNORT_RULES_PATH=/etc/snort/rules/
           - IPS_CLIENT_SNORT_CONF_PATH=/etc/snort/snort.conf
       ports:
-          - "8000:8000"  
+          - "8000:8000"
+      container_name: ips_client_srv
       command: make run
       depends_on:
         - psql
