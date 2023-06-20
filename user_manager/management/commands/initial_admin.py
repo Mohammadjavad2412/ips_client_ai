@@ -6,4 +6,5 @@ class Command(BaseCommand):
     help = "create admin user"
 
     def handle(self, *args, **kwargs):
-        create_admin()
+        # create_admin()
+        pass
