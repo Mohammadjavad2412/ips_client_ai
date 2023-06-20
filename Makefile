@@ -8,7 +8,7 @@ initial_admin:
 	python3 manage.py initial_admin
 
 run_uvicorn:
-	uvicorn ips_client.asgi:application --host 0.0.0.0 --port 8000
+	python3 -m uvicorn ips_client.asgi:application --host 0.0.0.0 --port 8000
 
 run:
 	python3 manage.py run_app

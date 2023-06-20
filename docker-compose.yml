@@ -2,7 +2,7 @@ version: '3.7'
 services:
   psql:
       container_name: postgres_database
-      image: postgres:latest
+      image: nexus:443/postgres:latest
       environment:
           - POSTGRES_PASSWORD=S0mETh1nGV3ryC0mPl3x
           - POSTGRES_USER=postgres
@@ -12,7 +12,7 @@ services:
       restart: unless-stopped
   ips_client:
       build: .
-      container_name: ips_client_srv
+      image: ips_client:latest
       restart: always
       environment:
           - IPS_CLIENT_POSTGRES_NAME=ips_client
@@ -34,7 +34,8 @@ services:
           - IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND=sudo cp -f /home/mohammadjavad/snort3-3.1.28.0/tools/snort2lua/snort.lua /home/mohammadjavad/snort3-3.1.28.0/lua/snort.lua
 
       ports:
-          - "8000:8000"  
+          - "8000:8000"
       command: make run
+      container_name: ipsclient_srv
       depends_on:
         - psql
