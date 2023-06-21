@@ -18,6 +18,7 @@ build:
     - docker rm -f ipsclient_srv || true
     - docker rmi -f ips_client:latest || true
     - docker-compose up -d
+    - sleep 30
     - docker logs ipsclient_srv 2>&1 | grep "Uvicorn running on"
     - docker-compose down
 
