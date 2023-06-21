@@ -1,0 +1,13 @@
+/var/log/clientapisrv/clientapisrv.log
+{
+        rotate 14
+        daily
+        missingok
+        notifempty
+        compress
+        delaycompress
+        sharedscripts
+        postrotate
+                invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
+        endscript
+}
