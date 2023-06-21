@@ -161,11 +161,14 @@ def get_access_token_from_server():
     
 def create_admin():
     try:
-        admin_user = Users.objects.get(is_superuser=True, is_admin=True)
+        admin_user = Users.objects.filter(is_superuser=True, is_admin=True, is_analyser=True).exists()
         if admin_user:
             pass
+        else:
+            UserManagement.create_superuser(email="marine@marine.com", password="marine")
     except:
-        UserManagement.create_superuser(email="admin@admin.com", password="admin")
+        logging.error(traceback.format_exc())
+        
 
 def set_device_serial(serial):
     raw_path = os.path.join(BASE_DIR,"ips_client","settings.py")
