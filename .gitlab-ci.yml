@@ -13,12 +13,17 @@ build:
     - docker-compose version
   script:
     - 'echo "10.27.95.5 nexus" >>/etc/hosts'
-    - cat Dockerfile
     - docker-compose down || true
     - docker rm -f ipsclient_srv || true
-    - docker rmi -f ips_client:latest || true
     - docker-compose up -d
-    - sleep 30
+    - |+
+      i=1
+      while [ True ]; do
+        sleep 1
+        docker logs ipsclient_srv 2>&1 | grep "Uvicorn running on" >/dev/null && break
+        let i=i+1
+        [[ $i -gt 45 ]] && break
+      done
     - docker logs ipsclient_srv 2>&1 | grep "Uvicorn running on"
     - docker-compose down
 
