@@ -34,9 +34,9 @@
 
   - name: Ensure postgresql IP address is present in dnsmasq configuration
     ansible.builtin.lineinfile:
-    path: /etc/lxc/default.conf
-    regexp: '^dhcp-host=postgresql'
-    line: 'dhcp-host=postgresql,{{ containers.postgresql.ip_address }}'
+      path: /etc/lxc/default.conf
+      regexp: '^dhcp-host=postgresql'
+      line: 'dhcp-host=postgresql,{{ containers.postgresql.ip_address }}'
 
   - name: Create postgres container
     ansible.builtin.command:
@@ -57,9 +57,9 @@
 
   - name: Ensure clientapi IP address is present in dnsmasq configuration
     ansible.builtin.lineinfile:
-    path: /etc/lxc/default.conf
-    regexp: '^dhcp-host=ips1'
-    line: 'dhcp-host=ips1,{{ containers.clientapi.ip_address }}'
+      path: /etc/lxc/default.conf
+      regexp: '^dhcp-host=ips1'
+      line: 'dhcp-host=ips1,{{ containers.clientapi.ip_address }}'
 
   - name: Create clientapi container
     ansible.builtin.command:
