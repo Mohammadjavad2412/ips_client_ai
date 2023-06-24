@@ -10,6 +10,11 @@
       dbname: "clientdb"
       username: "clientuser"
       password: "clientpass"
+    containers:
+      postgresql:
+        ip_address: "10.27.95.33"
+      clientapi:
+        ip_address: "10.27.95.200"
 
   # List of tasks
   tasks:
@@ -27,16 +32,17 @@
       - "00-clientapi.conf"
       - clientapisrv
 
-  - name: Create clientapi container
-    ansible.builtin.command:
-      cmd: /snap/bin/lxc launch ubuntu:20.04 ips1
-      creates: /var/snap/lxd/common/lxd/containers/ips1
- 
+  - name: Ensure postgresql IP address is present in dnsmasq configuration
+    ansible.builtin.lineinfile:
+    path: /etc/lxc/default.conf
+    regexp: '^dhcp-host=postgresql'
+    line: 'dhcp-host=postgresql,{{ containers.postgresql.ip_address }}'
+
   - name: Create postgres container
     ansible.builtin.command:
       cmd: /snap/bin/lxc launch ubuntu:20.04 postgresql
       creates: /var/snap/lxd/common/lxd/containers/postgresql
- 
+
   - name: setup postgresql container
     ansible.builtin.shell: |
       lxc list postgresql -f csv -c s | grep RUNNING >/dev/null 2>&1 || /snap/bin/lxc start postgresql
@@ -49,6 +55,17 @@
       /snap/bin/lxc exec postgresql -- /bin/bash -c "cd /var/lib/postgresql; sudo -u postgres psql -U postgres -tc \"CREATE USER {{ pg.username }} with encrypted password '{{ pg.password }}';\""
       /snap/bin/lxc exec postgresql -- /bin/bash -c "cd /var/lib/postgresql; sudo -u postgres psql -U postgres -tc \"GRANT ALL PRIVILEGES ON DATABASE {{ pg.dbname }} TO {{ pg.username }};\""
 
+  - name: Ensure clientapi IP address is present in dnsmasq configuration
+    ansible.builtin.lineinfile:
+    path: /etc/lxc/default.conf
+    regexp: '^dhcp-host=ips1'
+    line: 'dhcp-host=ips1,{{ containers.clientapi.ip_address }}'
+
+  - name: Create clientapi container
+    ansible.builtin.command:
+      cmd: /snap/bin/lxc launch ubuntu:20.04 ips1
+      creates: /var/snap/lxd/common/lxd/containers/ips1
+      
   - name: setup clientapi container
     ansible.builtin.shell: |
       lxc list ips1 -f csv -c s | grep RUNNING >/dev/null 2>&1 || /snap/bin/lxc start ips1
