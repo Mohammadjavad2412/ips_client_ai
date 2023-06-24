@@ -6,6 +6,10 @@
   # Variables
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    pg:
+      dbname: "clientdb"
+      username: "clientuser"
+      password: "clientpass"
 
   # List of tasks
   tasks:
@@ -28,7 +32,20 @@
       cmd: /snap/bin/lxc launch ubuntu:20.04 ips1
       creates: /var/snap/lxd/common/lxd/containers/ips1
  
-  - name: Install python3 in container
+  - name: Create postgres container
+    ansible.builtin.command:
+      cmd: /snap/bin/lxc launch ubuntu:20.04 postgresql
+      creates: /var/snap/lxd/common/lxd/containers/postgresql
+ 
+  - name: setup postgresql container
+    ansible.builtin.shell: |
+      lxc list postgresql -f csv -c s | grep RUNNING >/dev/null 2>&1 || /snap/bin/lxc start postgresql
+      sleep 5
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo 10.27.95.5 nexus >/etc/hosts && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q && DEBIAN_FRONTEND=noninteractive apt-get install postgresql -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "cd /var/lib/postgresql; sudo -u postgres psql -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = '{{ pg.dbname }}'\" | grep -q 1 || sudo -u postgres psql -U postgres -tc \"CREATE DATABASE {{ pg.dbname }}\""
+
+  - name: setup clientapi container
     ansible.builtin.shell: |
       lxc list ips1 -f csv -c s | grep RUNNING >/dev/null 2>&1 || /snap/bin/lxc start ips1
       sleep 5
