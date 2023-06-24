@@ -6,7 +6,6 @@ After=network.target
 Type=simple
 User=client
 WorkingDirectory=/home/client
-EnvironmentFile=/etc/default/clientapi
 ExecStart=/usr/bin/python3 -m uvicorn ips_client.asgi:application --host 0.0.0.0 --port 8000
 StandardOutput=syslog
 StandardError=syslog
