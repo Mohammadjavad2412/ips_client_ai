@@ -40,6 +40,9 @@
     notify:
     - Restart lxd network
 
+  - name: Flush Handlers
+    meta: flush_handlers
+
   - name: Create postgres container
     ansible.builtin.command:
       cmd: /snap/bin/lxc launch ubuntu:20.04 postgresql
@@ -64,6 +67,9 @@
       line: 'dhcp-host=ips1,{{ containers.clientapi.ip_address }}'
     notify:
     - Restart lxd network
+
+  - name: Flush Handlers
+    meta: flush_handlers
 
   - name: Create clientapi container
     ansible.builtin.command:
