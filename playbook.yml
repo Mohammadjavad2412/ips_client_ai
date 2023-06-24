@@ -37,6 +37,8 @@
       path: /etc/lxc/dnsmasq.conf
       regexp: '^dhcp-host=postgresql'
       line: 'dhcp-host=postgresql,{{ containers.postgresql.ip_address }}'
+    notify:
+    - Restart lxd network
 
   - name: Create postgres container
     ansible.builtin.command:
@@ -60,6 +62,8 @@
       path: /etc/lxc/dnsmasq.conf
       regexp: '^dhcp-host=ips1'
       line: 'dhcp-host=ips1,{{ containers.clientapi.ip_address }}'
+    notify:
+    - Restart lxd network
 
   - name: Create clientapi container
     ansible.builtin.command:
@@ -84,3 +88,9 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_HOST={{ containers.postgresql.ip_address }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_PORT=5432 >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"
+
+  handlers:
+  - name: Make sure lxc-net service is restarted
+    ansible.builtin.systemd:
+      state: restarted
+      name: lxc-net
