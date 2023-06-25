@@ -100,7 +100,7 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"
 
   handlers:
-  - name: Make sure lxc-net service is restarted
+  - name: Restart lxd network
     ansible.builtin.systemd:
       state: restarted
       name: lxc-net
