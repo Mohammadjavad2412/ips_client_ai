@@ -169,7 +169,7 @@ def get_access_token_from_server():
     
 def create_admin():
     try:
-        admin_user = Users.objects.filter(is_superuser=True, is_admin=True, is_analyser=True).exists()
+        admin_user = Users.objects.filter(is_superuser=True).exists()
         if admin_user:
             pass
         else:
