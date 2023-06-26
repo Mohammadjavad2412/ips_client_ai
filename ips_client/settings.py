@@ -207,5 +207,21 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 SERVER_SIDE_EMAIL='mohammadali@gmail.com'
 SERVER_SIDE_PASSWORD='mohammadali'
-SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4MTEzMzE3LCJpYXQiOjE2ODcyNDkzMTcsImp0aSI6ImU2MWQ0OTljMzdkZDRhYmE5ZGY2ZmIyOWNlNzE5ZGY4IiwidXNlcl9pZCI6ImY4ZjMxMGM5LTA0MzItNDYyZC04YzljLTIwYTAwNDRiM2ZhOSJ9.1cYJw4uWe9LQmuQ8Wn5pLuAvgZDFKYUlgdfdHRRPOq4'
+SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTU5MzAyLCJpYXQiOjE2ODc2OTUzMDIsImp0aSI6IjY4YzE5MjY0MmZhNDQ5ZGRiMTQ3YWVlYjNkMTY4Mjg1IiwidXNlcl9pZCI6ImY4ZjMxMGM5LTA0MzItNDYyZC04YzljLTIwYTAwNDRiM2ZhOSJ9.mnO2TfOqwDh4L6vNq5u0P9qDXaVZiq5AcHzs7fMfxzI'
 DEVICE_SERIAL='b9f069b3-d256-4e84-bc9c-5f9f55cdf0ac'
+
+
+
+#TODO:
+#admin@icsfence.com
+#add self sign certificate
+#complexity password(capital letter, lower letter, number)
+#notify for reconfiguration
+#uncomment expiration liscence for each device serial
+#pop up for rules(signature list)
+#versioning rules
+#count policy
+#number of modify policies
+#update signature(diff), no overwrite, add new policies in rules
+#healthchecker(proxy, web proxy, ips, netflow analysis, network traffic analyser)
+#netflow analysing, ndpi, ntopng, ntopng dashboard
