@@ -173,7 +173,7 @@ def create_admin():
         if admin_user:
             pass
         else:
-            UserManagement.create_superuser(email="marine@marine.com", password="marine")
+            Users.objects.create_superuser(email="admin@admin.com", password="admin")
     except:
         logging.error(traceback.format_exc())
         
