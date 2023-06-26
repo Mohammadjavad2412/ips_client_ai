@@ -169,11 +169,11 @@ def get_access_token_from_server():
     
 def create_admin():
     try:
-        admin_user = Users.objects.filter(is_superuser=True, is_admin=True, is_analyser=True).exists()
+        admin_user = Users.objects.filter(is_superuser=True).exists()
         if admin_user:
             pass
         else:
-            UserManagement.create_superuser(email="marine@marine.com", password="marine")
+            Users.objects.create_superuser(email="admin@admin.com", password="admin")
     except:
         logging.error(traceback.format_exc())
         
