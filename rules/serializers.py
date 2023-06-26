@@ -32,7 +32,7 @@ class RulesSerializers(ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):      
-        super().update(instance, validated_data)
+        return super().update(instance, validated_data)
 
 class IpSerializers(ModelSerializer):
     class Meta:

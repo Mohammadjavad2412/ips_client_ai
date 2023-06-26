@@ -20,16 +20,14 @@ class IsOwner(BasePermission):
     
 class UserPermission(BasePermission):
     def has_permission(self, request, view):
-        if request.method not in SAFE_METHODS and request.user.is_authenticated and request.user.is_superuser:
+        if request.user.is_authenticated and request.user.is_superuser:
             return True
         return False
     
     def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS and (request.user.is_authenticated|request.user.is_admin|request.user.is_superuser):
+        if request.user.is_authenticated and obj.id == request.user.id:
             return True
-        if request.method not in SAFE_METHODS and request.user.is_authenticated and request.user.is_superuser:
-            return True
-        if request.user.is_authenticated and request.user.id == obj.id:
+        elif request.user.is_authenticated and request.user.is_superuser:
             return True
         else:
             return False 

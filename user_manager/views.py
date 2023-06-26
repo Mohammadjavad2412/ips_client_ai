@@ -171,7 +171,22 @@ class ProfileView(APIView):
             ser_user = UserSerializer(user)
             response = {}
             response = ser_user.data
-            response['is_authenticated'] = True
+            server_side_email = settings.SERVER_SIDE_EMAIL
+            server_side_password = settings.SERVER_SIDE_PASSWORD
+            ips_authentication_server_url = IPS_CLIENT_SERVER_URL + "/users/token/"
+            body = {
+                "email" : server_side_email,
+                "password" : server_side_password
+            }
+            request = requests.post(url = ips_authentication_server_url, data=body)
+            if request.status_code == 200:
+                response ={}
+                response = ser_user.data
+                response['is_authenticated'] = True
+            else:
+                response ={}
+                response = ser_user.data
+                response['is_authenticated'] = False
             return Response(response, status.HTTP_200_OK)
         except:
             return Response({"error": "no such a user, user not found!"}, status.HTTP_400_BAD_REQUEST)

@@ -27,7 +27,7 @@ import logging
 import os
 import re
 import subprocess as sp
-import signal
+import shutil
 
 def get_rules_list(language="en-us"):
     server_base_url = settings.IPS_CLIENT_SERVER_URL
@@ -80,7 +80,15 @@ def change_mod(path):
     proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
     proc.communicate()
 
-def create_rules_files():    
+def del_rule_dir():
+    try:
+        for file in os.scandir(f"{IPS_CLIENT_SNORT_RULES_PATH}/"):
+            os.remove(file.path)
+    except:
+        logging.error(traceback.format_exc())
+
+def create_rules_files():
+    del_rule_dir()
     rules = Rules.objects.all()
     for rule in rules:
         rule_name = rule.rule_name
