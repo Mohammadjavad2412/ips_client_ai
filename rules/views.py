@@ -42,6 +42,7 @@ class RulesView(ModelViewSet):
         super().perform_update(serializer)
         sync_db_and_snort()
 
+
     def perform_create(self, serializer):
         super().perform_create(serializer)
         sync_db_and_snort()

@@ -23,6 +23,16 @@ services:
           - IPS_CLIENT_IPS_SERVER_URL=http://192.168.1.56:8000
           - IPS_CLIENT_SNORT_RULES_PATH=/etc/snort/rules/
           - IPS_CLIENT_SNORT_CONF_PATH=/etc/snort/snort.conf
+          - IPS_CLIENT_SNORT2_LUA_PATH=/home/mohammadjavad/snort3-3.1.28.0/tools/snort2lua
+          - IPS_CLIENT_SNORT2_SNORT_LUA_FILE=/home/mohammadjavad/snort3-3.1.28.0/tools/snort2lua/snort.lua
+          - IPS_CLIENT_SNORT_LUA_FILE=/home/mohammadjavad/snort3-3.1.28.0/lua/snort.lua
+          - IPS_CLIENT_SNORT_DEFAULT_LUA_FILE=/home/mohammadjavad/snort3-3.1.28.0/lua/snort_defaults.lua
+          - IPS_CLIENT_LOG_RABBIT_PATH=/var/log/rabbitmq
+          - IPS_CLIENT_LOG_SNORT_PATH=/var/log/snort
+          - IPS_CLIENT_RESTART_SNORT_COMMAND=sudo systemctl restart snort
+          - IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND=snort2lua -c /etc/snort/snort.conf
+          - IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND=sudo cp -f /home/mohammadjavad/snort3-3.1.28.0/tools/snort2lua/snort.lua /home/mohammadjavad/snort3-3.1.28.0/lua/snort.lua
+
       ports:
           - "8000:8000"
       command: make run

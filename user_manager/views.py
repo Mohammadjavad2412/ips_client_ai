@@ -1,6 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from django.utils.translation import gettext as _
 from user_manager.permissions import IsAdmin, IsSuperUser, UserPermission
 from rest_framework.permissions import IsAuthenticated
 from user_manager.models import Users
@@ -110,7 +109,7 @@ class ServerAuthentication(APIView):
                         new_conf = re.sub(r"SERVER_SIDE_ACCESS_TOKEN.*", f"SERVER_SIDE_ACCESS_TOKEN='{str(access_token)}'", new_conf, re.MULTILINE)
                     with open(raw_path, 'w') as new_settings_file:
                         new_settings_file.write(new_conf)
-                    return Response(_({"info": "successfully authorized"}), status.HTTP_200_OK)
+                    return Response({"info": "successfully authorized"}, status.HTTP_200_OK)
                 elif request.status_code == 401:
                     return Response({"error": "Invalid email or password"}, status.HTTP_401_UNAUTHORIZED)
                 else:
@@ -161,3 +160,33 @@ class ProductView(APIView):
                 return Response({"server down, try later"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
         except:
             return Response({"error":"internal server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ProfileView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            ser_user = UserSerializer(user)
+            response = {}
+            response = ser_user.data
+            server_side_email = settings.SERVER_SIDE_EMAIL
+            server_side_password = settings.SERVER_SIDE_PASSWORD
+            ips_authentication_server_url = IPS_CLIENT_SERVER_URL + "/users/token/"
+            body = {
+                "email" : server_side_email,
+                "password" : server_side_password
+            }
+            request = requests.post(url = ips_authentication_server_url, data=body)
+            if request.status_code == 200:
+                response ={}
+                response = ser_user.data
+                response['is_authenticated'] = True
+            else:
+                response ={}
+                response = ser_user.data
+                response['is_authenticated'] = False
+            return Response(response, status.HTTP_200_OK)
+        except:
+            return Response({"error": "no such a user, user not found!"}, status.HTTP_400_BAD_REQUEST)

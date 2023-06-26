@@ -3,14 +3,16 @@ from ips_client.settings import (
     BASE_DIR,
     IPS_CLIENT_MODE,
     IPS_CLIENT_SNORT_RULES_PATH,
-    IPS_CLIENT_PRODUCTION_CONTAINER_NAME,
     IPS_CLIENT_SNORT_CONF_PATH,
     IPS_CLIENT_SNORT2_SNORT_LUA_FILE,
     IPS_CLIENT_SNORT2_LUA_PATH,
     IPS_CLIENT_SNORT_LUA_FILE,
     IPS_CLIENT_SNORT_DEFAULT_LUA_FILE,
     IPS_CLIENT_LOG_SNORT_PATH,
-    IPS_CLIENT_LOG_RABBIT_PATH
+    IPS_CLIENT_LOG_RABBIT_PATH,
+    IPS_CLIENT_RESTART_SNORT_COMMAND,
+    IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND,
+    IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND
 )
 from rules.models import Rules
 from pathlib import Path
@@ -25,7 +27,7 @@ import logging
 import os
 import re
 import subprocess as sp
-import signal
+import shutil
 
 def get_rules_list(language="en-us"):
     server_base_url = settings.IPS_CLIENT_SERVER_URL
@@ -78,7 +80,15 @@ def change_mod(path):
     proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
     proc.communicate()
 
-def create_rules_files():    
+def del_rule_dir():
+    try:
+        for file in os.scandir(f"{IPS_CLIENT_SNORT_RULES_PATH}/"):
+            os.remove(file.path)
+    except:
+        logging.error(traceback.format_exc())
+
+def create_rules_files():
+    del_rule_dir()
     rules = Rules.objects.all()
     for rule in rules:
         rule_name = rule.rule_name
@@ -158,11 +168,15 @@ def get_access_token_from_server():
         return None 
     
 def create_admin():
-    admin_user = Users.objects.get(is_superuser=True, is_admin=True)
-    if admin_user:
-        pass
-    else:
-        UserManagement.create_superuser(email="admin@admin.com", password="admin")
+    try:
+        admin_user = Users.objects.filter(is_superuser=True, is_admin=True, is_analyser=True).exists()
+        if admin_user:
+            pass
+        else:
+            UserManagement.create_superuser(email="marine@marine.com", password="marine")
+    except:
+        logging.error(traceback.format_exc())
+        
 
 def set_device_serial(serial):
     raw_path = os.path.join(BASE_DIR,"ips_client","settings.py")
@@ -200,12 +214,18 @@ def replace_ips_in_snort_conf(snort_conf_path):
  
 def create_lua_from_conf():
     os.chdir(f'{IPS_CLIENT_SNORT2_LUA_PATH}')
-    COMMAND = ['snort2lua', '-c', f"{IPS_CLIENT_SNORT_CONF_PATH}"]
+    cr_lu_fr_co_co = IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND
+    create_lua_from_conf_command = [str(word) for word in cr_lu_fr_co_co.split()]
+    COMMAND = create_lua_from_conf_command
+    # COMMAND = ['snort2lua', '-c', f"{IPS_CLIENT_SNORT_CONF_PATH}"]
     proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
     proc.communicate()
 
 def cp_lua_file_to_desired_loc():
-    COMMAND = ['sudo' ,'cp', '-f', f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", f"{IPS_CLIENT_SNORT_LUA_FILE}"]
+    cp_lu_fi_to_de_lo = IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND
+    cp_lua_file_to_desired_loc_command = [str(word) for word in cp_lu_fi_to_de_lo.split()]
+    COMMAND = cp_lua_file_to_desired_loc_command
+    # COMMAND = ['sudo' ,'cp', '-f', f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", f"{IPS_CLIENT_SNORT_LUA_FILE}"]
     proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
     proc.communicate()
 
@@ -224,14 +244,14 @@ def convert_snort_conf():
     cp_lua_file_to_desired_loc()
 
 def restart_snort():
-    if IPS_CLIENT_MODE == "development":
-        try:
-            change_mod(IPS_CLIENT_LOG_RABBIT_PATH)
-            change_mod(IPS_CLIENT_LOG_SNORT_PATH)
-            COMMAND = ['sudo','systemctl','restart', 'snort']
-            proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
-            proc.communicate()
-        except sp.CalledProcessError as e:
-            logging.error({"Error": e})
-    else:    
-        sp.run(['sudo', 'lxc', 'exec', f"{IPS_CLIENT_PRODUCTION_CONTAINER_NAME}", "/bin/bash"])
+    try:
+        change_mod(IPS_CLIENT_LOG_RABBIT_PATH)
+        change_mod(IPS_CLIENT_LOG_SNORT_PATH)
+        re_sn_co = IPS_CLIENT_RESTART_SNORT_COMMAND
+        restart_snort_command = [str(word) for word in re_sn_co.split()]
+        COMMAND = restart_snort_command
+        # COMMAND = ['sudo','systemctl','restart', 'snort']
+        proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
+        proc.communicate()
+    except sp.CalledProcessError as e:
+        logging.error({"Error": e})
