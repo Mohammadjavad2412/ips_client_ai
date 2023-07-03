@@ -12,14 +12,15 @@ class Rules(models.Model):
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    version = models.FloatField(null=True, blank=True)
 
 
 class ValidIps(models.Model):
     TYPE_CHOICES = (("Internal", "Internal"), ("External", "External"))
     ip_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
     ip = models.CharField(max_length= 32,null=True, blank=True)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     class Meta:
         unique_together = ('ip', 'ip_type')

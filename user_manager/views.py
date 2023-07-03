@@ -51,7 +51,15 @@ class LoginView(APIView):
                         "email" : server_side_email,
                         "password" : server_side_password
                     }
-                    request = requests.post(url = ips_authentication_server_url, data=body)
+                    try:
+                        request = requests.post(url = ips_authentication_server_url, data=body)
+                    except:
+                        response = {}
+                        response = ser_user.data
+                        response['is_authenticated'] = True
+                        response['access_token'] = access_token
+                        response['refresh_token'] = refresh_token
+                        return Response(response, status.HTTP_200_OK)    
                     if request.status_code == 200:
                         response ={}
                         response = ser_user.data
@@ -111,7 +119,7 @@ class ServerAuthentication(APIView):
                         new_settings_file.write(new_conf)
                     return Response({"info": "successfully authorized"}, status.HTTP_200_OK)
                 elif request.status_code == 401:
-                    return Response({"error": "Invalid email or password"}, status.HTTP_401_UNAUTHORIZED)
+                    return Response({"error": "Invalid email or password"}, status.HTTP_406_NOT_ACCEPTABLE)
                 else:
                     return Response({"error" : "server down, try later"}, status.HTTP_500_INTERNAL_SERVER_ERROR)            
             except:
@@ -178,7 +186,13 @@ class ProfileView(APIView):
                 "email" : server_side_email,
                 "password" : server_side_password
             }
-            request = requests.post(url = ips_authentication_server_url, data=body)
+            try:
+                request = requests.post(url = ips_authentication_server_url, data=body)
+            except:
+                response = {}
+                response = ser_user.data
+                response["is_authenticated"] = True
+                return Response(response, status.HTTP_200_OK)
             if request.status_code == 200:
                 response ={}
                 response = ser_user.data

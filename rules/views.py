@@ -44,9 +44,11 @@ class RulesView(ModelViewSet):
 
 
     def perform_create(self, serializer):
-        super().perform_create(serializer)
-        sync_db_and_snort()
-
+        try:
+            super().perform_create(serializer)
+            sync_db_and_snort()
+        except:
+            logging.error(traceback.format_exc())
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
         sync_db_and_snort()

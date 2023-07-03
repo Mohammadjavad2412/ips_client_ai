@@ -24,14 +24,20 @@ class RulesSerializers(ModelSerializer):
         rule_name = rule_detail['name']
         rule_code = rule_detail['code']
         description = rule_detail['description']
+        version = rule_detail['version']
         user = self.context['request'].user
         validated_data['rule_name'] = rule_name
         validated_data['rule_code'] = rule_code
         validated_data['description'] = description
+        validated_data['version'] = version
         validated_data['creator'] = user
         return super().create(validated_data)
 
-    def update(self, instance, validated_data):      
+    def update(self, instance, validated_data):
+        id = instance.i
+        rule_detail = retrieve_rule(id)
+        version = rule_detail['version']
+        validated_data['version'] =version
         return super().update(instance, validated_data)
 
 class IpSerializers(ModelSerializer):
