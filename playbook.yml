@@ -13,8 +13,12 @@
     containers:
       postgresql:
         ip_address: "10.27.95.33"
+        port: "5432"
       clientapi:
         ip_address: "10.27.95.200"
+    snort:
+      rules_path: "/etc/snort/rules"
+      conf_path: "/etc/snort/snort.conf"
 
   # List of tasks
   tasks:
@@ -102,7 +106,9 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_USER={{ pg.username }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_PASSWORD={{ pg.password }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_HOST={{ containers.postgresql.ip_address }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_PORT=5432 >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_PORT={{ containers.postgresql.port }} >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_RULES_PATH={{ snort.rules_path }} >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_CONF_PATH={{ snort.conf_path }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"
 
   handlers:
