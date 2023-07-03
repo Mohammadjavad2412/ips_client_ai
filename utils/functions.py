@@ -12,7 +12,13 @@ from ips_client.settings import (
     IPS_CLIENT_LOG_RABBIT_PATH,
     IPS_CLIENT_RESTART_SNORT_COMMAND,
     IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND,
-    IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND
+    IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND,
+    IPS_CLIENT_ELASTIC_HOST,
+    IPS_CLIENT_ELASTIC_PORT,
+    IPS_CLIENT_KIBANA_HOST,
+    IPS_CLIENT_KIBANA_PORT,
+    IPS_CLIENT_ELK_USER_NAME,
+    IPS_CLIENT_ELK_PASSWORD,
 )
 from rules.models import Rules
 from pathlib import Path
@@ -20,6 +26,7 @@ from ips_client import settings
 from user_manager.models import Users
 from user_manager.models import UserManagement
 from rules.models import ValidIps
+from elasticsearch import Elasticsearch
 import requests
 import json
 import traceback
@@ -27,7 +34,8 @@ import logging
 import os
 import re
 import subprocess as sp
-import shutil
+import psutil
+import subprocess
 
 def get_rules_list(language="en-us"):
     server_base_url = settings.IPS_CLIENT_SERVER_URL
@@ -173,7 +181,7 @@ def create_admin():
         if admin_user:
             pass
         else:
-            Users.objects.create_superuser(email="admin@admin.com", password="admin")
+            Users.objects.create_superuser(email="admin@admin.com", password="Admin@11")
     except:
         logging.error(traceback.format_exc())
         
@@ -255,3 +263,86 @@ def restart_snort():
         proc.communicate()
     except sp.CalledProcessError as e:
         logging.error({"Error": e})
+
+def check_snort_health():
+    snort_running = False
+    for proc in psutil.process_iter():
+        try:
+            if 'snort' in proc.name().lower():
+                snort_running = True
+                break
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    if snort_running:
+        return True
+    else:
+        return False
+
+def check_elastic_health():
+    try:
+        es = Elasticsearch(hosts=f"{IPS_CLIENT_ELASTIC_HOST}:{IPS_CLIENT_ELASTIC_PORT}" ,http_auth=(f"{IPS_CLIENT_ELK_USER_NAME}", f"{IPS_CLIENT_ELK_PASSWORD}"))
+        ping_exist = es.ping()
+        if ping_exist:
+            return True
+        else:
+            return False
+    except:
+        logging.error(traceback.format_exc())
+
+def check_kibana_health():
+    kibana_url = f"http://{IPS_CLIENT_KIBANA_HOST}:{IPS_CLIENT_KIBANA_PORT}/api/status"
+    # kibana_url = "http://localhost:5601/api/status"
+    try:
+        response = requests.get(kibana_url, auth=(f"{IPS_CLIENT_ELK_USER_NAME}", f"{IPS_CLIENT_ELK_PASSWORD}"))
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except:
+        logging.error(traceback.format_exc())
+        logging.info("unable to connect to kibana")
+        return False
+
+def check_zeek_health():
+    zeek_running = False
+    for proc in psutil.process_iter():
+        try:
+            if 'zeek' in proc.name().lower():
+                zeek_running = True
+                break
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    if zeek_running:
+        return True
+    else:
+        return False
+
+def check_filebeat_health():
+    filebeat_running = False
+    for proc in psutil.process_iter():
+        try:
+            if 'filebeat' in proc.name().lower():
+                filebeat_running = True
+                break
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    if filebeat_running:
+        return True
+    else:
+        return False
+
+def check_ntopng_health():
+    ntopng_running = False
+    for proc in psutil.process_iter():
+        try:
+            if 'ntopng' in proc.name().lower():
+                ntopng_running = True
+                break
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    if ntopng_running:
+        return True
+    else:
+        return False
+
+

@@ -36,6 +36,12 @@ else:
 ALLOWED_HOSTS = ["*","0.0.0.0","127.0.0.1", "localhost"]
 
 
+# SECURE_SSL_REDIRECT=True
+# SESSION_COOKIE_SECURE=True
+SECURE_SSL_CERTIFICATE="~/Desktop/projects/netpardaz/ips_client/cert.pem"
+SECURE_SSL_KEY="~/Desktop/projects/netpardaz/ips_client/key.pem"
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,7 +57,9 @@ INSTALLED_APPS = [
     #third party
     "rest_framework",
     #corseheaders
-    'corsheaders'
+    'corsheaders',
+    #other apps
+    # "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -195,6 +203,12 @@ IPS_CLIENT_LOG_SNORT_PATH=os.getenv("IPS_CLIENT_LOG_SNORT_PATH")
 IPS_CLIENT_RESTART_SNORT_COMMAND=os.getenv("IPS_CLIENT_RESTART_SNORT_COMMAND")
 IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND=os.getenv("IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND")
 IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND=os.getenv("IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND")
+IPS_CLIENT_ELASTIC_HOST=os.getenv("IPS_CLIENT_ELASTIC_HOST")
+IPS_CLIENT_ELASTIC_PORT=os.getenv("IPS_CLIENT_ELASTIC_PORT")
+IPS_CLIENT_KIBANA_HOST=os.getenv("IPS_CLIENT_KIBANA_HOST")
+IPS_CLIENT_KIBANA_PORT=os.getenv("IPS_CLIENT_KIBANA_PORT")
+IPS_CLIENT_ELK_USER_NAME=os.getenv("IPS_CLIENT_ELK_USER_NAME")
+IPS_CLIENT_ELK_PASSWORD=os.getenv("IPS_CLIENT_ELK_PASSWORD")
 
 # CORS_ORIGIN_WHITELIST = [
 #     'http://localhost:3000',
@@ -205,10 +219,10 @@ LOCALE_PATHS = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-SERVER_SIDE_EMAIL='mohammadali@gmail.com'
-SERVER_SIDE_PASSWORD='mohammadali'
-SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTU5MzAyLCJpYXQiOjE2ODc2OTUzMDIsImp0aSI6IjY4YzE5MjY0MmZhNDQ5ZGRiMTQ3YWVlYjNkMTY4Mjg1IiwidXNlcl9pZCI6ImY4ZjMxMGM5LTA0MzItNDYyZC04YzljLTIwYTAwNDRiM2ZhOSJ9.mnO2TfOqwDh4L6vNq5u0P9qDXaVZiq5AcHzs7fMfxzI'
-DEVICE_SERIAL='b9f069b3-d256-4e84-bc9c-5f9f55cdf0ac'
+SERVER_SIDE_EMAIL='test@test.com'
+SERVER_SIDE_PASSWORD='@lsoTest11'
+SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg5MjMxNzE3LCJpYXQiOjE2ODgzNjc3MTcsImp0aSI6IjQwYTljYjI1ZmM5ZTRhMjhiMDZiZThkNmJkYzMzODEzIiwidXNlcl9pZCI6IjAwNGUzOTZiLWQ1OGEtNGUxOC04YjQ3LTg5NjUzZDBkZTEwNCJ9.jY7SF47kr_Bj8zcoDX1LGC7pzrHwzfSO5XANywA6lK0'
+DEVICE_SERIAL='e9be871a-86ab-427f-a5e8-de291a212565'
 
 
 
@@ -225,3 +239,7 @@ DEVICE_SERIAL='b9f069b3-d256-4e84-bc9c-5f9f55cdf0ac'
 #update signature(diff), no overwrite, add new policies in rules
 #healthchecker(proxy, web proxy, ips, netflow analysis, network traffic analyser)
 #netflow analysing, ndpi, ntopng, ntopng dashboard
+
+
+
+#squid, Ha proxy monitoring health checking
