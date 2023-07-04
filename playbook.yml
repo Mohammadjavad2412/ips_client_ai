@@ -24,6 +24,9 @@
         port: "5601"
       server:
         url: "http://192.168.2.21:8000"
+      ntopng:
+        ip_address: "10.27.95.102"
+        port: 3000
     snort:
       lua_path: "/opt/snort-latest/lua"
       rules_path: "/etc/snort/rules"
@@ -142,6 +145,8 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_USER_NAME={{ elk.username }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_PASSWORD={{ elk.password }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_LOG_RABBIT_PATH=/var/log/rabbitmq >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_NTOPNG_HOST={{ containers.ntopng.ip_address}} >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_NTOPNG_PORT={{ containers.ntopng.port}} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"      
 
   handlers:

@@ -19,6 +19,8 @@ from ips_client.settings import (
     IPS_CLIENT_KIBANA_PORT,
     IPS_CLIENT_ELK_USER_NAME,
     IPS_CLIENT_ELK_PASSWORD,
+    IPS_CLIENT_NTOPNG_HOST,
+    IPS_CLIENT_NTOPNG_PORT
 )
 from rules.models import Rules
 from pathlib import Path
@@ -332,17 +334,27 @@ def check_filebeat_health():
         return False
 
 def check_ntopng_health():
-    ntopng_running = False
-    for proc in psutil.process_iter():
-        try:
-            if 'ntopng' in proc.name().lower():
-                ntopng_running = True
-                break
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
-    if ntopng_running:
-        return True
-    else:
+    try:
+        ntop_ng_url = f"http://{IPS_CLIENT_NTOPNG_HOST}:{IPS_CLIENT_NTOPNG_PORT}"
+        request = requests.get(url=ntop_ng_url)
+        if request.status_code == 302:
+            return True
+        else:
+            return False
+    except:
+        logging.error(traceback.format_exc())
         return False
+    # ntopng_running = False
+    # for proc in psutil.process_iter():
+    #     try:
+    #         if 'ntopng' in proc.name().lower():
+    #             ntopng_running = True
+    #             break
+    #     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+    #         pass
+    # if ntopng_running:
+    #     return True
+    # else:
+    #     return False
 
 
