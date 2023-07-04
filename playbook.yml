@@ -141,6 +141,7 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_KIBANA_PORT={{ containers.kibana.port }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_USER_NAME={{ elk.username }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_PASSWORD={{ elk.password }} >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_LOG_RABBIT_PATH=/var/log/rabbitmq >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"      
 
   handlers:
