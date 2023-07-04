@@ -34,7 +34,7 @@ class RulesSerializers(ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        id = instance.i
+        id = instance.id
         rule_detail = retrieve_rule(id)
         version = rule_detail['version']
         validated_data['version'] =version
