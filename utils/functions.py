@@ -280,7 +280,7 @@ def check_snort_health():
 
 def check_elastic_health():
     try:
-        es = Elasticsearch(hosts=f"{IPS_CLIENT_ELASTIC_HOST}:{IPS_CLIENT_ELASTIC_PORT}" ,http_auth=(f"{IPS_CLIENT_ELK_USER_NAME}", f"{IPS_CLIENT_ELK_PASSWORD}"))
+        es = Elasticsearch(hosts=f"http://{IPS_CLIENT_ELASTIC_HOST}:{IPS_CLIENT_ELASTIC_PORT}" ,http_auth=(f"{IPS_CLIENT_ELK_USER_NAME}", f"{IPS_CLIENT_ELK_PASSWORD}"))
         ping_exist = es.ping()
         if ping_exist:
             return True
