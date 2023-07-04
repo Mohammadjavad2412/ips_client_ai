@@ -4,7 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=client
+#User=client
+User=root
 WorkingDirectory=/home/client
 ExecStart=/usr/bin/python3 manage.py run_app
 StandardOutput=syslog
