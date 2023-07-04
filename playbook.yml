@@ -16,9 +16,24 @@
         port: "5432"
       clientapi:
         ip_address: "10.27.95.200"
+      elastic:
+        ip_address: "10.27.95.8"
+        port: "9200"
+      kibana:
+        ip_address: "10.27.95.8"
+        port: "5601"
     snort:
+      lua_path: "/opt/snort-latest/lua"
       rules_path: "/etc/snort/rules"
       conf_path: "/etc/snort/snort.conf"
+      log_path: "/var/log/snort"
+      restart_command: "sudo systemctl restart snort"
+    snort2lua:
+      binary_path: "/opt/snort3-3.1.43.0/build/tools/snort2lua"
+    elk:
+      username: "admin"
+      password: "adminpass"
+
 
   # List of tasks
   tasks:
@@ -109,7 +124,21 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_PORT={{ containers.postgresql.port }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_RULES_PATH={{ snort.rules_path }} >>/home/client/.env"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_CONF_PATH={{ snort.conf_path }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT2_LUA_PATH={{ snort2lua.binary_path }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT2_SNORT_LUA_FILE={{ snort2lua.binary_path }}/snort.lua" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_LUA_FILE={{ snort.lua_path }}/snort.lua" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_DEFAULT_LUA_FILE={{ snort.lua_path }}/snort_defaults.lua" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_LOG_SNORT_PATH={{ snort.log_path }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_RESTART_SNORT_COMMAND={{ snort.restart_command }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND=snort2lua -c {{ snort.conf_path }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND=sudo cp -f {{ snort2lua.binary_path }}/snort.lua {{ snort.lua_path }}/snort.lua" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELASTIC_HOST={{ containers.elastic.ip_address }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELASTIC_PORT={{ containers.elastic.port }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_KIBANA_HOST={{ containers.kibana.ip_address }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_KIBANA_PORT={{ containers.kibana.port }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_USER_NAME={{ elk.username }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_PASSWORD={{ elk.password }}" >>/home/client/.env"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"      
 
   handlers:
   - name: Restart lxd network
