@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
+Environment="REQUESTS_CA_BUNDLE=/home/client/ca.pem"
 #User=client
 User=root
 WorkingDirectory=/home/client

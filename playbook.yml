@@ -23,7 +23,7 @@
         ip_address: "10.27.95.8"
         port: "5601"
       server:
-        url: "http://192.168.2.21:8000"
+        url: "http://192.168.1.50:8002"
       ntopng:
         ip_address: "10.27.95.102"
         port: 3000
@@ -55,6 +55,12 @@
       - clientapi.service
       - "00-clientapi.conf"
       - clientapisrv
+
+  - name: Copy env template to tmp
+    ansible.builtin.template:
+      src: "/home/ansible/env.j2"
+      dest: "/tmp/.env"
+      mode: '0644'
 
   - name: Ensure postgresql IP address is present in dnsmasq configuration
     ansible.builtin.lineinfile:
@@ -122,31 +128,7 @@
       /snap/bin/lxc file push /tmp/clientapisrv ips1/etc/logrotate.d/clientapisrv
       /snap/bin/lxc exec ips1 -- /bin/bash -c "grep client /etc/passwd >/dev/null || useradd -d /home/client -m -s /usr/sbin/nologin client && tar -C /home/client -xzf /tmp/app.tar.gz && systemctl enable clientapi.service && mkdir /var/log/clientapisrv && chown syslog:adm /var/log/clientapisrv && systemctl restart rsyslog"
       /snap/bin/lxc exec ips1 -- sudo -u client -s /bin/bash -c "cd /home/client && /usr/bin/python3 -m pip install --index-url http://nexus:8081/repository/pypi-all/simple --trusted-host nexus -r requirements.txt"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_DB={{ pg.dbname }} >/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_USER={{ pg.username }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_PASSWORD={{ pg.password }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_HOST={{ containers.postgresql.ip_address }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_POSTGRES_PORT={{ containers.postgresql.port }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SERVER_URL={{ containers.server.url }} >>/home/client/.env"      
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_RULES_PATH={{ snort.rules_path }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_CONF_PATH={{ snort.conf_path }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT2_LUA_PATH={{ snort2lua.binary_path }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT2_SNORT_LUA_FILE={{ snort2lua.binary_path }}/snort.lua >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_LUA_FILE={{ snort.lua_path }}/snort.lua >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_SNORT_DEFAULT_LUA_FILE={{ snort.lua_path }}/snort_defaults.lua >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_LOG_SNORT_PATH={{ snort.log_path }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_RESTART_SNORT_COMMAND={{ snort.restart_command }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND=snort2lua -c {{ snort.conf_path }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND=sudo cp -f {{ snort2lua.binary_path }}/snort.lua {{ snort.lua_path }}/snort.lua >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELASTIC_HOST={{ containers.elastic.ip_address }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELASTIC_PORT={{ containers.elastic.port }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_KIBANA_HOST={{ containers.kibana.ip_address }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_KIBANA_PORT={{ containers.kibana.port }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_USER_NAME={{ elk.username }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_ELK_PASSWORD={{ elk.password }} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_LOG_RABBIT_PATH=/var/log/rabbitmq >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_NTOPNG_HOST={{ containers.ntopng.ip_address}} >>/home/client/.env"
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo IPS_CLIENT_NTOPNG_PORT={{ containers.ntopng.port}} >>/home/client/.env"
+      /snap/bin/lxc file push /tmp/.env ips1/home/client/.env
       /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"      
 
   handlers:
