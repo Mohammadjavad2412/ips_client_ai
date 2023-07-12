@@ -67,6 +67,7 @@
       path: /etc/lxc/dnsmasq.conf
       regexp: '^dhcp-host=postgresql'
       line: 'dhcp-host=postgresql,{{ containers.postgresql.ip_address }}'
+      create: true
     notify:
     - Restart lxd network
 
