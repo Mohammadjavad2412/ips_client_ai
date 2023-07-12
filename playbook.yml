@@ -23,7 +23,7 @@
         ip_address: "10.27.95.8"
         port: "5601"
       server:
-        url: "http://192.168.2.21:8000"
+        url: "http://192.168.1.54:8000"
       ntopng:
         ip_address: "10.27.95.102"
         port: 3000
