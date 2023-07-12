@@ -128,7 +128,7 @@
       /snap/bin/lxc file push /tmp/00-clientapi.conf ips1/etc/rsyslog.d/00-clientapi.conf
       /snap/bin/lxc file push /tmp/clientapisrv ips1/etc/logrotate.d/clientapisrv
       /snap/bin/lxc exec ips1 -- /bin/bash -c "grep client /etc/passwd >/dev/null || useradd -d /home/client -m -s /usr/sbin/nologin client && tar -C /home/client -xzf /tmp/app.tar.gz && systemctl enable clientapi.service && mkdir /var/log/clientapisrv && chown syslog:adm /var/log/clientapisrv && systemctl restart rsyslog"
-      /snap/bin/lxc exec ips1 -- sudo -u client -s /bin/bash -c "cd /home/client && /usr/bin/python3 -m pip install --index-url http://nexus:8081/repository/pypi-all/simple --trusted-host nexus -r requirements.txt"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "cd /home/client && /usr/bin/python3 -m pip install --index-url http://nexus:8081/repository/pypi-all/simple --trusted-host nexus -r requirements.txt"
       /snap/bin/lxc file push /tmp/.env ips1/home/client/.env
       /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"      
 
