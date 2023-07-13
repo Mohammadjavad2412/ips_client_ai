@@ -120,6 +120,8 @@ class ServerAuthentication(APIView):
                     return Response({"info": "successfully authorized"}, status.HTTP_200_OK)
                 elif request.status_code == 401:
                     return Response({"error": "Invalid email or password"}, status.HTTP_406_NOT_ACCEPTABLE)
+                elif request.status_code == 400:
+                    return Response({"error": "invalid data"}, status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response({"error" : "server down, try later"}, status.HTTP_500_INTERNAL_SERVER_ERROR)            
             except:

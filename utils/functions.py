@@ -149,7 +149,7 @@ def set_snort_conf():
 def sync_db_and_snort():
     create_rules_files()
     set_snort_conf()
-    convert_snort_conf()
+    # convert_snort_conf()
     restart_snort()
 
 def delete_rule_file(rule_name):
