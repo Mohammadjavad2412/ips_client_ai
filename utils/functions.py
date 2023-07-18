@@ -27,7 +27,7 @@ from pathlib import Path
 from ips_client import settings
 from user_manager.models import Users
 from user_manager.models import UserManagement
-from rules.models import ValidIps
+from rules.models import InValidIps
 from elasticsearch import Elasticsearch
 import requests
 import json
@@ -39,13 +39,13 @@ import subprocess as sp
 import psutil
 import subprocess
 
-def get_rules_list(language="en-us"):
+def get_rules_list(language="en-us", params=None):
     server_base_url = settings.IPS_CLIENT_SERVER_URL
     server_rules_list_url = server_base_url + "/rules/list"
     try: 
         access_token = settings.SERVER_SIDE_ACCESS_TOKEN  
         headers = {"Authorization" : f"Bearer {access_token}","Accept-Language": language}
-        request = requests.get(server_rules_list_url, headers=headers)
+        request = requests.get(server_rules_list_url, headers=headers, params=params)
         if request.status_code == 200:
             rules_list = json.loads(request.content)
             return rules_list
@@ -149,7 +149,6 @@ def set_snort_conf():
 def sync_db_and_snort():
     create_rules_files()
     set_snort_conf()
-    # convert_snort_conf()
     restart_snort()
 
 def delete_rule_file(rule_name):
@@ -197,7 +196,7 @@ def set_device_serial(serial):
         new_settings_file.write(new_conf)
 
 def replace_ips_in_snort_conf(snort_conf_path):
-    ips = ValidIps.objects.all()
+    ips = InValidIps.objects.all()
     internal_ips = [ip.ip for ip in ips if ip.ip_type == "Internal"]
     internal_ips = str(internal_ips).replace(' ', '')
     external_ips = [ip.ip for ip in ips if ip.ip_type == "External"]
@@ -221,37 +220,6 @@ def replace_ips_in_snort_conf(snort_conf_path):
         new_conf = snort_conf.replace("'", "")
         with open(snort_conf_path, 'w') as snort_conf_w:
             snort_conf_w.write(new_conf)
- 
-def create_lua_from_conf():
-    os.chdir(f'{IPS_CLIENT_SNORT2_LUA_PATH}')
-    cr_lu_fr_co_co = IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND
-    create_lua_from_conf_command = [str(word) for word in cr_lu_fr_co_co.split()]
-    COMMAND = create_lua_from_conf_command
-    # COMMAND = ['snort2lua', '-c', f"{IPS_CLIENT_SNORT_CONF_PATH}"]
-    proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
-    proc.communicate()
-
-def cp_lua_file_to_desired_loc():
-    cp_lu_fi_to_de_lo = IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND
-    cp_lua_file_to_desired_loc_command = [str(word) for word in cp_lu_fi_to_de_lo.split()]
-    COMMAND = cp_lua_file_to_desired_loc_command
-    # COMMAND = ['sudo' ,'cp', '-f', f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", f"{IPS_CLIENT_SNORT_LUA_FILE}"]
-    proc = sp.Popen(COMMAND, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
-    proc.communicate()
-
-def edit_snort_lua_file():
-    change_mod(f"{IPS_CLIENT_SNORT2_LUA_PATH}/")
-    change_mod(f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}")
-    with open(f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", "r") as snort_lua:
-        snort_lua = snort_lua.read()
-        edited_snort_lua = re.sub(r"dofile.*", f"dofile('{IPS_CLIENT_SNORT_DEFAULT_LUA_FILE}')", snort_lua, re.MULTILINE)
-        with open(f"{IPS_CLIENT_SNORT2_SNORT_LUA_FILE}", 'w') as new_snort_lua:
-            new_snort_lua.write(edited_snort_lua)
-
-def convert_snort_conf():
-    create_lua_from_conf()
-    edit_snort_lua_file()
-    cp_lua_file_to_desired_loc()
 
 def restart_snort():
     try:

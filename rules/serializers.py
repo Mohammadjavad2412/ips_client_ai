@@ -1,7 +1,7 @@
 from rest_framework.fields import empty
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from .models import Rules, ValidIps
+from .models import Rules, InValidIps
 from user_manager.serializers import UserSerializer
 from utils.functions import sync_db_and_snort, retrieve_rule
 from ips_client import settings
@@ -42,7 +42,7 @@ class RulesSerializers(ModelSerializer):
 
 class IpSerializers(ModelSerializer):
     class Meta:
-        model = ValidIps
+        model = InValidIps
         fields = "__all__"
     
     def validate_ip(self, data):
@@ -55,7 +55,7 @@ class IpSerializers(ModelSerializer):
 
     def create(self, validated_data):
         try:
-            ip = ValidIps.objects.create(**validated_data)
+            ip = InValidIps.objects.create(**validated_data)
             sync_db_and_snort()
             return ip
         except:

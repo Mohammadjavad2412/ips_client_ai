@@ -18,3 +18,4 @@ urlpatterns = [
     path("profile/", views.ProfileView.as_view(), name="profile")
 ]
 urlpatterns += router.urls
+

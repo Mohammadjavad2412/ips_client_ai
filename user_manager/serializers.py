@@ -12,6 +12,7 @@ class UserSerializer(ModelSerializer):
         model = Users
         fields = "__all__"
 
+
     def create(self, validated_data):
         password = validated_data.pop('password')
         if validated_data['is_admin'] == True:
