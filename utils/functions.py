@@ -29,6 +29,7 @@ from user_manager.models import Users
 from user_manager.models import UserManagement
 from rules.models import InValidIps
 from elasticsearch import Elasticsearch
+from scapy.all import Ether, IP, TCP, Raw, send
 import requests
 import json
 import traceback
@@ -325,4 +326,7 @@ def check_ntopng_health():
     # else:
     #     return False
 
-
+def dnp3_packet():
+    dnp3_pkt = Ether()/IP(src="1.1.1.1", dst="2.2.2.2")/TCP(sport=20000, dport=20000)/Raw(load="\x05\x64\x05\x00\x00\x64\x01\x00\x00")
+    send(dnp3_pkt)
+    

@@ -15,6 +15,13 @@ class Command(BaseCommand):
         except:
             logging.error(traceback.format_exc())
 
+    def run_celery_worker(self):
+        subprocess.run(["make", "run_celery"])
+
+    def run_celery_beat(self):
+        subprocess.run(["make", "run_periodic_tasks"])
+
+
     def run_uvicorn(self):
         subprocess.run(["make", "run_uvicorn"])
 
