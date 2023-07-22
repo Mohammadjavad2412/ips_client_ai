@@ -54,7 +54,7 @@ def get_rules_list(language="en-us", params=None):
             access_token = get_access_token_from_server()
             if access_token:
                 headers = {"Authorization" : f"Bearer {access_token}", "Accept-Language": language}
-                request = requests.get(server_rules_list_url, headers=headers)
+                request = requests.get(server_rules_list_url, headers=headers, params=params)
                 rules_list = json.loads(request.content)
                 return rules_list
             else:
@@ -326,7 +326,4 @@ def check_ntopng_health():
     # else:
     #     return False
 
-def dnp3_packet():
-    dnp3_pkt = Ether()/IP(src="1.1.1.1", dst="2.2.2.2")/TCP(sport=20000, dport=20000)/Raw(load="\x05\x64\x05\x00\x00\x64\x01\x00\x00")
-    send(dnp3_pkt)
     
