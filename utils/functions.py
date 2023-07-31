@@ -29,7 +29,6 @@ from user_manager.models import Users
 from user_manager.models import UserManagement
 from rules.models import InValidIps
 from elasticsearch import Elasticsearch
-from scapy.all import Ether, IP, TCP, Raw, send
 import requests
 import json
 import traceback
@@ -326,4 +325,28 @@ def check_ntopng_health():
     # else:
     #     return False
 
+def is_equal_code(front_code, server_code):
+        reg_pattern = r"^[alert|drop|block|reject|pass][\s\S]*?;\)"
+        recieved_rule_list = re.findall(reg_pattern, front_code, re.MULTILINE)
+        server_code_regex_applied = re.findall(reg_pattern, server_code, re.MULTILINE)
+        # without_action_policy_reg_pattern = r"(?i)^(drop|alert|block|pass|reject)\s+(.+)$"
+        without_action_policy_reg_pattern = r'^(drop|alert|block|pass|reject)\s*(.*)'
+        server_code_without_action = []
+        for server_policy in server_code_regex_applied:
+            server_policy_without_action_code = re.match(without_action_policy_reg_pattern, server_policy)
+            action = server_policy_without_action_code.group(1)
+            rest_of_the_code = server_policy_without_action_code.group(2)
+            server_code_without_action.append(rest_of_the_code)
+        front_code_without_action = []
+        for policy in recieved_rule_list:
+            policy_without_action_code = re.match(without_action_policy_reg_pattern, policy)
+            action = policy_without_action_code.group(1)
+            rest_of_the_code = policy_without_action_code.group(2)
+            front_code_without_action.append(rest_of_the_code)
+        for i in range(len(server_code_without_action)):
+            if server_code_without_action[i] in front_code_without_action:
+                return True
+            else:
+                return False
+        
     
