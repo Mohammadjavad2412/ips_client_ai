@@ -51,7 +51,7 @@ class LoginView(APIView):
                         "email" : server_side_email,
                         "password" : server_side_password
                     }
-                    if email == IPS_CLIENT_DEFAULT_USER_NAME and password == IPS_CLIENT_DEFAULT_PASSWORD:
+                    if email == IPS_CLIENT_DEFAULT_ADMIN_USER_NAME and password == IPS_CLIENT_DEFAULT_ADMIN_PASSWORD:
                         force_change = True
                     else:
                         force_change = False
