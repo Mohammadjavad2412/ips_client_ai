@@ -4,7 +4,7 @@ from user_manager.permissions import IsAdmin, IsSuperUser, UserPermission
 from rest_framework.permissions import IsAuthenticated
 from user_manager.models import Users
 from user_manager.serializers import UserSerializer, LoginSerializer
-from ips_client.settings import IPS_CLIENT_SERVER_URL
+from ips_client.settings import IPS_CLIENT_SERVER_URL, IPS_CLIENT_DEFAULT_USER_NAME, IPS_CLIENT_DEFAULT_PASSWORD
 from rest_framework.response import Response
 from rest_framework import status
 from ips_client.settings import BASE_DIR
@@ -51,6 +51,10 @@ class LoginView(APIView):
                         "email" : server_side_email,
                         "password" : server_side_password
                     }
+                    if email == IPS_CLIENT_DEFAULT_USER_NAME and password == IPS_CLIENT_DEFAULT_PASSWORD:
+                        force_change = True
+                    else:
+                        force_change = False
                     try:
                         request = requests.post(url = ips_authentication_server_url, data=body)
                     except:
@@ -59,6 +63,7 @@ class LoginView(APIView):
                         response['is_authenticated'] = True
                         response['access_token'] = access_token
                         response['refresh_token'] = refresh_token
+                        response['force_change'] = force_change
                         return Response(response, status.HTTP_200_OK)    
                     if request.status_code == 200:
                         response ={}
@@ -66,12 +71,14 @@ class LoginView(APIView):
                         response['is_authenticated'] = True
                         response['access_token'] = access_token
                         response['refresh_token'] = refresh_token
+                        response['force_change'] = force_change
                     else:
                         response ={}
                         response = ser_user.data
                         response['is_authenticated'] = False
                         response['access_token'] = access_token
                         response['refresh_token'] = refresh_token
+                        response['force_change'] = force_change
                     return Response(response, status.HTTP_200_OK)
                 else:
                     return Response({"error": "Invalid username or password"}, status.HTTP_400_BAD_REQUEST)

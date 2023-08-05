@@ -3,6 +3,8 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .models import Rules, InValidIps
 from user_manager.serializers import UserSerializer
+from rest_framework.response import Response
+from rest_framework import status
 from utils.functions import sync_db_and_snort, retrieve_rule, is_equal_code
 from ips_client import settings
 import ipaddress
@@ -13,7 +15,7 @@ import re
 
 class RulesSerializers(ModelSerializer):
     creator = UserSerializer(required=False)
-
+    without_action_code = serializers.JSONField()
     class Meta:
         model = Rules
         fields = "__all__"
@@ -29,7 +31,7 @@ class RulesSerializers(ModelSerializer):
             if is_equal:
                 validated_data['rule_code'] = recieved_rule
             else:
-                return serializers.ValidationError("codes in rules is different")
+                raise serializers.ValidationError("codes in rules is different",code=400)
         else:
             validated_data['rule_code'] = rule_code
         rule_name = rule_detail['name']
@@ -42,6 +44,7 @@ class RulesSerializers(ModelSerializer):
         validated_data['creator'] = user
         return super().create(validated_data)
 
+
     def update(self, instance, validated_data):
         id = instance.id
         recieved_rule = validated_data['rule_code']
@@ -50,7 +53,7 @@ class RulesSerializers(ModelSerializer):
         try:
             rule_code = Rules.objects.get(id=id).rule_code
         except:
-            return serializers.ValidationError("maybe rule id has been changed or deleted")
+            raise serializers.ValidationError("maybe rule id has been changed or deleted",code=400)
         version = rule_detail['version']
         validated_data['version'] =version
         is_equal_my_db = is_equal_code(recieved_rule, rule_code)

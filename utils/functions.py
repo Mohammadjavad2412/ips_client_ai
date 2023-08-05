@@ -326,9 +326,15 @@ def check_ntopng_health():
     #     return False
 
 def is_equal_code(front_code, server_code):
-        reg_pattern = r"^[alert|drop|block|reject|pass][\s\S]*?;\)"
-        recieved_rule_list = re.findall(reg_pattern, front_code, re.MULTILINE)
-        server_code_regex_applied = re.findall(reg_pattern, server_code, re.MULTILINE)
+        reg_pattern = r"(alert|drop|block|reject|pass)[\s\S]*?;\)"
+        matches = re.finditer(reg_pattern, front_code, re.MULTILINE)
+        recieved_rule_list = []
+        server_code_regex_applied = []
+        for match in matches:
+            recieved_rule_list.append(match.group(0))
+        matches = re.finditer(reg_pattern, server_code, re.MULTILINE)
+        for match in matches:
+            server_code_regex_applied.append(match.group(0))
         # without_action_policy_reg_pattern = r"(?i)^(drop|alert|block|pass|reject)\s+(.+)$"
         without_action_policy_reg_pattern = r'^(drop|alert|block|pass|reject)\s*(.*)'
         server_code_without_action = []
@@ -343,10 +349,15 @@ def is_equal_code(front_code, server_code):
             action = policy_without_action_code.group(1)
             rest_of_the_code = policy_without_action_code.group(2)
             front_code_without_action.append(rest_of_the_code)
-        for i in range(len(server_code_without_action)):
-            if server_code_without_action[i] in front_code_without_action:
-                return True
-            else:
-                return False
+        try:
+            for i in range(len(server_code_without_action)):
+                if server_code_without_action[i] in front_code_without_action:
+                    check = 'ok'
+                else:
+                    return False
+            return True
+        except:
+            return False
+                    
         
     

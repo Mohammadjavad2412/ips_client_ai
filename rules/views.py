@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Rules
 from ips_client.settings import BASE_DIR
+from rest_framework import serializers
 from utils.functions import (
     get_rules_list,
     retrieve_rule,
@@ -35,20 +36,20 @@ import os
 
 class RulesView(ModelViewSet):
     queryset = Rules.objects.all()
-    serializer_class = RulesSerializers
     permission_classes = [IsAdmin]
+    serializer_class = RulesSerializers
 
     def perform_update(self, serializer):
         super().perform_update(serializer)
         sync_db_and_snort()
 
-
     def perform_create(self, serializer):
         try:
             super().perform_create(serializer)
             sync_db_and_snort()
-        except:
-            logging.error(traceback.format_exc())
+        except serializers.ValidationError as e:
+            return Response(serializer.error, status.HTTP_400_BAD_REQUEST)
+        
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
         sync_db_and_snort()
