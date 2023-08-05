@@ -10,8 +10,7 @@
       dbname: "clientdb"
       username: "clientuser"
       password: "clientpass"
-    clientapi:
-      ip_address: "10.27.95.200"
+    client:
       admin_default_user_name : "admin@admin.com"
       admin_default_password : "Admin@11"
     containers:
@@ -24,6 +23,8 @@
       kibana:
         ip_address: "10.27.95.8"
         port: "5601"
+      clientapi:
+        ip_address: "10.27.95.200"
       server:
         url: "https://ips.npd-co.com"
       ntopng:
