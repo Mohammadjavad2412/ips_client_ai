@@ -31,7 +31,7 @@ class RulesSerializers(ModelSerializer):
             if is_equal:
                 validated_data['rule_code'] = recieved_rule
             else:
-                raise serializers.ValidationError("codes in rules is different",code=400)
+                raise serializers.ValidationError("codes in rules is different")
         else:
             validated_data['rule_code'] = rule_code
         rule_name = rule_detail['name']
@@ -53,7 +53,7 @@ class RulesSerializers(ModelSerializer):
         try:
             rule_code = Rules.objects.get(id=id).rule_code
         except:
-            raise serializers.ValidationError("maybe rule id has been changed or deleted",code=400)
+            raise serializers.ValidationError("maybe rule id has been changed or deleted")
         version = rule_detail['version']
         validated_data['version'] =version
         is_equal_my_db = is_equal_code(recieved_rule, rule_code)
