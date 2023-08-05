@@ -15,7 +15,7 @@ import re
 
 class RulesSerializers(ModelSerializer):
     creator = UserSerializer(required=False)
-    without_action_code = serializers.JSONField()
+
     class Meta:
         model = Rules
         fields = "__all__"
