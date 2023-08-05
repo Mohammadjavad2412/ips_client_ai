@@ -4,7 +4,7 @@ from user_manager.permissions import IsAdmin, IsSuperUser, UserPermission
 from rest_framework.permissions import IsAuthenticated
 from user_manager.models import Users
 from user_manager.serializers import UserSerializer, LoginSerializer
-from ips_client.settings import IPS_CLIENT_SERVER_URL, IPS_CLIENT_DEFAULT_USER_NAME, IPS_CLIENT_DEFAULT_PASSWORD
+from ips_client.settings import IPS_CLIENT_SERVER_URL, IPS_CLIENT_DEFAULT_ADMIN_USER_NAME, IPS_CLIENT_DEFAULT_ADMIN_PASSWORD
 from rest_framework.response import Response
 from rest_framework import status
 from ips_client.settings import BASE_DIR
