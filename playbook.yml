@@ -10,20 +10,21 @@
       dbname: "clientdb"
       username: "clientuser"
       password: "clientpass"
+    client:
+      admin_default_user_name : "admin@admin.com"
+      admin_default_password : "Admin@11"
     containers:
       postgresql:
         ip_address: "10.27.95.33"
         port: "5432"
-      clientapi:
-        ip_address: "10.27.95.200"
-        admin_default_user_name : "admin@admin.com"
-        admin_default_password : "Admin@11"
       elastic:
         ip_address: "10.27.95.8"
         port: "9200"
       kibana:
         ip_address: "10.27.95.8"
         port: "5601"
+      clientapi:
+        ip_address: "10.27.95.200"
       server:
         url: "https://ips.npd-co.com"
       ntopng:
