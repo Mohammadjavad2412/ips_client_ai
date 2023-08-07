@@ -15,8 +15,11 @@ class UserSerializer(ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        if validated_data['is_admin'] == True:
-            validated_data['is_analyser'] = True
+        if 'is_admin' in validated_data:
+            if validated_data['is_admin'] == True:
+                validated_data['is_analyser'] = True
+            else:
+                pass
         else:
             pass
         instance = self.Meta.model(**validated_data)
