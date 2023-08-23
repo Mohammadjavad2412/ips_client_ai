@@ -1,0 +1,18 @@
+[Unit]
+Description=Netpardaz Cleint API Server
+After=network.target
+
+[Service]
+Type=simple
+#Environment="REQUESTS_CA_BUNDLE=/home/client/ca.pem"
+#User=client
+User=root
+WorkingDirectory=/home/client
+ExecStart=/usr/bin/python3 manage.py run_app
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=clientapisrv
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
