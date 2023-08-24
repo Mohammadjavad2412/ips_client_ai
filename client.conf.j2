@@ -1,0 +1,18 @@
+server {
+        listen {{ HOST_IP_ADDRESS }}:8000;
+
+        server_name _;
+
+        location / {                
+                proxy_redirect off;
+                proxy_buffering off;
+                proxy_http_version 1.1;
+                proxy_set_header Connection "Keep-Alive";
+                proxy_set_header Proxy-Connection "Keep-Alive";
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Host $http_host;
+                proxy_hide_header x-frame-options;
+
+                proxy_pass http://{{ containers.clientapi.ip_address }}:8000;
+        }
+}
