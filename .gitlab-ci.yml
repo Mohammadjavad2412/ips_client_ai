@@ -44,7 +44,7 @@ deploy:
       IPS_CLIENT_POSTGRES_PASSWORD={{ pg.password }}
       IPS_CLIENT_POSTGRES_HOST={{ containers.postgresql.ip_address }}
       IPS_CLIENT_POSTGRES_PORT={{ containers.postgresql.port }}
-      IPS_CLIENT_SERVER_URL={{ containers.server.url }}     
+      IPS_CLIENT_SERVER_URL=$IPS_SERVER_URL
       IPS_CLIENT_SNORT_RULES_PATH={{ snort.rules_path }}
       IPS_CLIENT_SNORT_CONF_PATH={{ snort.conf_path }}
       IPS_CLIENT_SNORT2_LUA_PATH={{ snort2lua.binary_path }}
