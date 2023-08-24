@@ -39,9 +39,9 @@ deploy:
   script:
     - |+
       cat >env.j2 <<_EOF_
-      IPS_CLIENT_POSTGRES_DB=$IPS_CLIENT_POSTGRES_DB
-      IPS_CLIENT_POSTGRES_USER=$IPS_CLIENT_POSTGRES_USER
-      IPS_CLIENT_POSTGRES_PASSWORD=$IPS_CLIENT_POSTGRES_PASSWORD
+      IPS_CLIENT_POSTGRES_DB={{ pg.dbname }}
+      IPS_CLIENT_POSTGRES_USER={{ pg.username }}
+      IPS_CLIENT_POSTGRES_PASSWORD={{ pg.password }}
       IPS_CLIENT_POSTGRES_HOST={{ containers.postgresql.ip_address }}
       IPS_CLIENT_POSTGRES_PORT={{ containers.postgresql.port }}
       IPS_CLIENT_SERVER_URL={{ containers.server.url }}     
@@ -72,4 +72,3 @@ deploy:
     - echo $ANSIBLE_PRIVATE_KEY | base64 -d > /home/ansible/.ssh/id_rsa; chmod 0600 /home/ansible/.ssh/id_rsa
     - /usr/bin/ssh-keygen -f /home/ansible/.ssh/id_rsa -y > /home/ansible/.ssh/id_rsa.pub
     - export ANSIBLE_HOST_KEY_CHECKING=False; /home/ansible/.local/bin/ansible-playbook /home/ansible/playbook.yml -i /home/ansible/inventory/hosts
-    
