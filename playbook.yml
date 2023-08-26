@@ -82,7 +82,8 @@
     ansible.builtin.shell: |
       sleep 5
       /snap/bin/lxc config device add postgresql eth0 nic name=eth0 nictype=bridged parent=vsys0
-      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo 192.168.1.50 nexus >/etc/hosts && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
+      /snap/bin/lxc exec front -- /bin/bash -c "egrep '^192.168.1.50\snexus$' /etc/hosts || echo 192.168.1.50 nexus >>/etc/hosts"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
       /snap/bin/lxc exec postgresql -- /bin/bash -c "apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc exec postgresql -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install postgresql -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc exec postgresql -- /bin/bash -c "cd /var/lib/postgresql; sudo -u postgres psql -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = '{{ pg.dbname }}'\" | grep -q 1 || sudo -u postgres psql -U postgres -tc \"CREATE DATABASE {{ pg.dbname }};\""
@@ -118,7 +119,8 @@
     ansible.builtin.shell: |
       sleep 5
       /snap/bin/lxc config device add ips1 eth0 nic name=eth0 nictype=bridged parent=vsys0
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo 192.168.1.50 nexus >>/etc/hosts && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
+      /snap/bin/lxc exec front -- /bin/bash -c "egrep '^192.168.1.50\snexus$' /etc/hosts || echo 192.168.1.50 nexus >>/etc/hosts"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
       /snap/bin/lxc exec ips1 -- /bin/bash -c "apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install python3 python3-pip -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc file push /tmp/app.tar.gz ips1/tmp/app.tar.gz
