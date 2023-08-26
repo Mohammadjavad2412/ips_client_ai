@@ -122,6 +122,7 @@
       /snap/bin/lxc exec front -- /bin/bash -c "egrep '^192.168.1.50\snexus$' /etc/hosts || echo 192.168.1.50 nexus >>/etc/hosts"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
       /snap/bin/lxc exec ips1 -- /bin/bash -c "apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install snort -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install python3 python3-pip -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc file push /tmp/app.tar.gz ips1/tmp/app.tar.gz
       /snap/bin/lxc file push /tmp/clientapi.service ips1/usr/lib/systemd/system/clientapi.service
@@ -130,7 +131,7 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "grep client /etc/passwd >/dev/null || useradd -d /home/client -m -s /usr/sbin/nologin client && tar -C /home/client -xzf /tmp/app.tar.gz && systemctl enable clientapi.service && mkdir /var/log/clientapisrv && chown syslog:adm /var/log/clientapisrv && systemctl restart rsyslog"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "cd /home/client && /usr/bin/python3 -m pip install --index-url http://nexus:8081/repository/pypi-all/simple --trusted-host nexus -r requirements.txt"
       /snap/bin/lxc file push /tmp/.env ips1/home/client/.env
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"      
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"
 
   - name: template client.conf to nginx
     ansible.builtin.template:
