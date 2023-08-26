@@ -31,12 +31,44 @@ deploy:
   stage: deploy
   only:
     - main
+    - stage
   image:
     name: nexus:443/netpardaz/ubuntu-ansible:20.04
+  before_script:
+    - source branch_env/.${CI_COMMIT_REF_NAME}.env
   script:
-    - tar czf /home/ansible/app.tar.gz . && cp playbook.yml clientapi.service 00-clientapi.conf clientapisrv env.j2 /home/ansible
-    - mkdir /home/ansible/inventory; echo ics-sec ansible_host=10.27.95.1 ansible_ssh_user=ansible ansible_become_pass=`echo $ANSIBLE_PASSWORD | base64 -d` >/home/ansible/inventory/hosts
+    - |+
+      cat >env.j2 <<_EOF_
+      IPS_CLIENT_POSTGRES_DB={{ pg.dbname }}
+      IPS_CLIENT_POSTGRES_USER={{ pg.username }}
+      IPS_CLIENT_POSTGRES_PASSWORD={{ pg.password }}
+      IPS_CLIENT_POSTGRES_HOST={{ containers.postgresql.ip_address }}
+      IPS_CLIENT_POSTGRES_PORT={{ containers.postgresql.port }}
+      IPS_CLIENT_SERVER_URL=$IPS_SERVER_URL
+      IPS_CLIENT_SNORT_RULES_PATH={{ snort.rules_path }}
+      IPS_CLIENT_SNORT_CONF_PATH={{ snort.conf_path }}
+      IPS_CLIENT_SNORT2_LUA_PATH={{ snort2lua.binary_path }}
+      IPS_CLIENT_SNORT2_SNORT_LUA_FILE={{ snort2lua.binary_path }}/snort.lua
+      IPS_CLIENT_SNORT_LUA_FILE={{ snort.lua_path }}/snort.lua
+      IPS_CLIENT_SNORT_DEFAULT_LUA_FILE={{ snort.lua_path }}/snort_defaults.lua
+      IPS_CLIENT_LOG_SNORT_PATH={{ snort.log_path }}
+      IPS_CLIENT_RESTART_SNORT_COMMAND={{ snort.restart_command }}
+      IPS_CLIENT_CREATE_LUA_FROM_CONF_COMMAND=snort2lua -c {{ snort.conf_path }}
+      IPS_CLIENT_CP_LUA_FILE_TO_DESIRED_LOC_COMMAND=sudo cp -f {{ snort2lua.binary_path }}/snort.lua {{ snort.lua_path }}/snort.lua
+      IPS_CLIENT_ELASTIC_HOST={{ containers.elastic.ip_address }}
+      IPS_CLIENT_ELASTIC_PORT={{ containers.elastic.port }}
+      IPS_CLIENT_KIBANA_HOST={{ containers.kibana.ip_address }}
+      IPS_CLIENT_KIBANA_PORT={{ containers.kibana.port }}
+      IPS_CLIENT_ELK_USER_NAME=$IPS_CLIENT_ELK_USER_NAME
+      IPS_CLIENT_ELK_PASSWORD=$IPS_CLIENT_ELK_PASSWORD
+      IPS_CLIENT_LOG_RABBIT_PATH=/var/log/rabbitmq
+      IPS_CLIENT_NTOPNG_HOST={{ containers.ntopng.ip_address}}
+      IPS_CLIENT_NTOPNG_PORT={{ containers.ntopng.port}}
+      IPS_CLIENT_DEFAULT_ADMIN_USER_NAME=$IPS_CLIENT_DEFAULT_ADMIN_USER_NAME 
+      IPS_CLIENT_DEFAULT_ADMIN_PASSWORD=$IPS_CLIENT_DEFAULT_ADMIN_PASSWORD
+      _EOF_
+    - tar czf /home/ansible/app.tar.gz . && cp playbook.yml clientapi.service client.conf.j2 00-clientapi.conf clientapisrv env.j2 /home/ansible
+    - mkdir /home/ansible/inventory; echo ics-sec ansible_host=$ANSIBLE_HOST ansible_ssh_user=ansible ansible_become_pass=`echo $ANSIBLE_PASSWORD | base64 -d` >/home/ansible/inventory/hosts
     - echo $ANSIBLE_PRIVATE_KEY | base64 -d > /home/ansible/.ssh/id_rsa; chmod 0600 /home/ansible/.ssh/id_rsa
     - /usr/bin/ssh-keygen -f /home/ansible/.ssh/id_rsa -y > /home/ansible/.ssh/id_rsa.pub
-    - export ANSIBLE_HOST_KEY_CHECKING=False; /home/ansible/.local/bin/ansible-playbook /home/ansible/playbook.yml -i /home/ansible/inventory/hosts
-    
+    - export ANSIBLE_HOST_KEY_CHECKING=False; /home/ansible/.local/bin/ansible-playbook /home/ansible/playbook.yml -i /home/ansible/inventory/hosts --extra-vars="HOST_IP_ADDRESS=$ANSIBLE_HOST"

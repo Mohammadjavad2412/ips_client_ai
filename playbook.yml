@@ -10,9 +10,6 @@
       dbname: "clientdb"
       username: "clientuser"
       password: "clientpass"
-    client:
-      admin_default_user_name : "admin@admin.com"
-      admin_default_password : "Admin@11"
     containers:
       postgresql:
         ip_address: "10.27.95.33"
@@ -25,8 +22,6 @@
         port: "5601"
       clientapi:
         ip_address: "10.27.95.200"
-      server:
-        url: "https://ips.npd-co.com"
       ntopng:
         ip_address: "10.27.95.102"
         port: 3000
@@ -38,9 +33,6 @@
       restart_command: "sudo systemctl restart snort"
     snort2lua:
       binary_path: "/opt/snort3-3.1.43.0/build/tools/snort2lua"
-    elk:
-      username: "elastic"
-      password: "Admin@123"
 
   # List of tasks
   tasks:
@@ -88,15 +80,19 @@
 
   - name: setup postgresql container
     ansible.builtin.shell: |
-      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo 192.168.1.50 nexus >/etc/hosts && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
+      sleep 5
+      /snap/bin/lxc config device add postgresql eth0 nic name=eth0 nictype=bridged parent=vsys0
+      /snap/bin/lxc exec front -- /bin/bash -c "egrep '^192.168.1.50\snexus$' /etc/hosts || echo 192.168.1.50 nexus >>/etc/hosts"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
       /snap/bin/lxc exec postgresql -- /bin/bash -c "apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
-      /snap/bin/lxc exec postgresql -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install postgresql -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install postgresql-14 postgresql-client-14 -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc exec postgresql -- /bin/bash -c "cd /var/lib/postgresql; sudo -u postgres psql -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = '{{ pg.dbname }}'\" | grep -q 1 || sudo -u postgres psql -U postgres -tc \"CREATE DATABASE {{ pg.dbname }};\""
       /snap/bin/lxc exec postgresql -- /bin/bash -c "cd /var/lib/postgresql; sudo -u postgres psql -U postgres -tc \"SELECT count(*) FROM pg_user WHERE usename = '{{ pg.username}}'\" | grep -q 1 || sudo -u postgres psql -U postgres -tc \"CREATE USER {{ pg.username }} with encrypted password '{{ pg.password }}';\""
       /snap/bin/lxc exec postgresql -- /bin/bash -c "cd /var/lib/postgresql; sudo -u postgres psql -U postgres -tc \"GRANT ALL PRIVILEGES ON DATABASE {{ pg.dbname }} TO {{ pg.username }};\""
-      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo \"listen_addresses = '*'\" >>/etc/postgresql/14/main/postgresql.conf"
-      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo 'host  all  all  0.0.0.0/0  scram-sha-256' >>/etc/postgresql/14/main/pg_hba.conf"
-      /snap/bin/lxc exec postgresql -- /bin/bash -c "echo 'host  all  all  ::0/0  scram-sha-256' >>/etc/postgresql/14/main/pg_hba.conf"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "egrep '^listen_addresses\s+=\s+' /etc/postgresql/14/main/postgresql.conf >/dev/null || echo \"listen_addresses = '*'\" >>/etc/postgresql/14/main/postgresql.conf"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "egrep '^port\s+=\s+5432' /etc/postgresql/14/main/postgresql.conf >/dev/null || echo 'port = 5432' >>/etc/postgresql/14/main/postgresql.conf"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "egrep 'host  all  all  0.0.0.0/0  scram-sha-256' /etc/postgresql/14/main/pg_hba.conf >/dev/null || echo 'host  all  all  0.0.0.0/0  scram-sha-256' >>/etc/postgresql/14/main/pg_hba.conf"
+      /snap/bin/lxc exec postgresql -- /bin/bash -c "egrep 'host  all  all  ::0/0  scram-sha-256' /etc/postgresql/14/main/pg_hba.conf >/dev/null || echo 'host  all  all  ::0/0  scram-sha-256' >>/etc/postgresql/14/main/pg_hba.conf"
       /snap/bin/lxc exec postgresql -- /bin/bash -c "systemctl restart postgresql"
 
   - name: Ensure clientapi IP address is present in dnsmasq configuration
@@ -122,8 +118,12 @@
       
   - name: setup clientapi container
     ansible.builtin.shell: |
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo 192.168.1.50 nexus >>/etc/hosts && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
+      sleep 5
+      /snap/bin/lxc config device add ips1 eth0 nic name=eth0 nictype=bridged parent=vsys0
+      /snap/bin/lxc exec front -- /bin/bash -c "egrep '^192.168.1.50\snexus$' /etc/hosts || echo 192.168.1.50 nexus >>/etc/hosts"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy-updates main restricted universe > /etc/apt/sources.list && echo deb http://nexus:8081/repository/apt-proxy/ubuntu jammy main restricted universe >> /etc/apt/sources.list"      
       /snap/bin/lxc exec ips1 -- /bin/bash -c "apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install snort -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install python3 python3-pip -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -y -q"
       /snap/bin/lxc file push /tmp/app.tar.gz ips1/tmp/app.tar.gz
       /snap/bin/lxc file push /tmp/clientapi.service ips1/usr/lib/systemd/system/clientapi.service
@@ -132,10 +132,31 @@
       /snap/bin/lxc exec ips1 -- /bin/bash -c "grep client /etc/passwd >/dev/null || useradd -d /home/client -m -s /usr/sbin/nologin client && tar -C /home/client -xzf /tmp/app.tar.gz && systemctl enable clientapi.service && mkdir /var/log/clientapisrv && chown syslog:adm /var/log/clientapisrv && systemctl restart rsyslog"
       /snap/bin/lxc exec ips1 -- /bin/bash -c "cd /home/client && /usr/bin/python3 -m pip install --index-url http://nexus:8081/repository/pypi-all/simple --trusted-host nexus -r requirements.txt"
       /snap/bin/lxc file push /tmp/.env ips1/home/client/.env
-      /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"      
+      /snap/bin/lxc exec ips1 -- /bin/bash -c "systemctl daemon-reload && systemctl restart clientapi.service"
+
+  - name: template client.conf to nginx
+    ansible.builtin.template:
+      src: client.conf.j2
+      dest: /opt/nginx/sites-available/client.conf
+      mode: '0644'
+    notify:
+      - Restart nginx service
+
+  - name: Create a symbolic link to client.conf from enabled sites of nginx
+    ansible.builtin.file:
+      src: /opt/nginx/sites-available/client.conf
+      dest: /opt/nginx/sites-enabled/client.conf
+      state: link
+    notify:
+      - Restart nginx service
 
   handlers:
   - name: Restart lxd network
     ansible.builtin.systemd:
       state: restarted
       name: lxc-net
+
+  - name: Restart nginx service
+    ansible.builtin.systemd:
+      state: restarted
+      name: nginx
