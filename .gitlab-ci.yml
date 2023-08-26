@@ -67,7 +67,7 @@ deploy:
       IPS_CLIENT_DEFAULT_ADMIN_USER_NAME=$IPS_CLIENT_DEFAULT_ADMIN_USER_NAME 
       IPS_CLIENT_DEFAULT_ADMIN_PASSWORD=$IPS_CLIENT_DEFAULT_ADMIN_PASSWORD
       _EOF_
-    - tar czf /home/ansible/app.tar.gz . && cp playbook.yml clientapi.service 00-clientapi.conf clientapisrv env.j2 /home/ansible
+    - tar czf /home/ansible/app.tar.gz . && cp playbook.yml clientapi.service client.conf.j2 00-clientapi.conf clientapisrv env.j2 /home/ansible
     - mkdir /home/ansible/inventory; echo ics-sec ansible_host=$ANSIBLE_HOST ansible_ssh_user=ansible ansible_become_pass=`echo $ANSIBLE_PASSWORD | base64 -d` >/home/ansible/inventory/hosts
     - echo $ANSIBLE_PRIVATE_KEY | base64 -d > /home/ansible/.ssh/id_rsa; chmod 0600 /home/ansible/.ssh/id_rsa
     - /usr/bin/ssh-keygen -f /home/ansible/.ssh/id_rsa -y > /home/ansible/.ssh/id_rsa.pub
