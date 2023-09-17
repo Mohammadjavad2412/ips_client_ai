@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     #inner apps 
     "rules.apps.RulesConfig",
     "user_manager.apps.UserManagerConfig",
+    "Ai.apps.AiConfig",
     #third party
     "rest_framework",
     #corseheaders
@@ -215,6 +216,7 @@ IPS_CLIENT_NTOPNG_PORT=os.getenv("IPS_CLIENT_NTOPNG_PORT")
 IPS_CLIENT_DEFAULT_ADMIN_USER_NAME=os.getenv("IPS_CLIENT_DEFAULT_ADMIN_USER_NAME")
 IPS_CLIENT_DEFAULT_ADMIN_PASSWORD=os.getenv("IPS_CLIENT_DEFAULT_ADMIN_PASSWORD")
 
+
 # CORS_ORIGIN_WHITELIST = [
 #     'http://localhost:3000',
 # ]
@@ -229,22 +231,6 @@ SERVER_SIDE_PASSWORD='@lsoTest11'
 SERVER_SIDE_ACCESS_TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkyMjU1NTExLCJpYXQiOjE2OTEzOTE1MTEsImp0aSI6ImUwYTI4ZWUyZTQ0ZjQ0N2FiYjcwODhiODdmYmMwNTFhIiwidXNlcl9pZCI6IjAwNGUzOTZiLWQ1OGEtNGUxOC04YjQ3LTg5NjUzZDBkZTEwNCJ9.yi6cFmhlaH-3Z85RpEWhyfKkMxbcCwpNmRdfIVHpa0s'
 DEVICE_SERIAL='dcc472d2-3547-405f-b589-c6c16e794f4a'
 
-
-
-#TODO:
-#admin@icsfence.com
-#add self sign certificate
-#complexity password(capital letter, lower letter, number)
-#notify for reconfiguration
-#uncomment expiration liscence for each device serial
-#pop up for rules(signature list)
-#versioning rules
-#count policy
-#number of modify policies
-#update signature(diff), no overwrite, add new policies in rules
-#healthchecker(proxy, web proxy, ips, netflow analysis, network traffic analyser)
-#netflow analysing, ndpi, ntopng, ntopng dashboard
-
-
-
-#squid, Ha proxy monitoring health checking
+#Ai
+IPS_CLIENT_BOOTSTRAP_SERVER = os.getenv("IPS_CLIENT_BOOTSTRAP_SERVER")
+IPS_CLIENT_BOOTSTRAP_PORT = os.getenv("IPS_CLIENT_BOOTSTRAP_PORT")

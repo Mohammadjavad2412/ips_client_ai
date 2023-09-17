@@ -23,5 +23,6 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     path('rules/', include("rules.urls", namespace="rules")),
     path('users/', include("user_manager.urls", namespace="users")),
+    path('Ai/', include("Ai.urls", namespace="Ai")),
     path('health_check/', views.HealthCheck.as_view(), name="health_check")
-]
+    ]

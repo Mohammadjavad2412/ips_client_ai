@@ -359,5 +359,17 @@ def is_equal_code(front_code, server_code):
         except:
             return False
                     
-        
+def protocol_mapper(protocol):
+    if protocol == "dnp3":
+        from Ai.clients.dnp3 import Dnp3Client
+
+        return Dnp3Client()
+    if protocol == "modbus":
+        from Ai.clients.modbus import ModBusClient
+
+        return ModBusClient()
+    else:
+        raise NotImplementedError
     
+
+
